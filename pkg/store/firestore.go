@@ -11,19 +11,18 @@ type firestoreClientManager struct {
 	client *firestore.Client
 }
 
+func (f *firestoreClientManager) Count(collection string) int {
+	return count(f.ctx, f.client, collection)
+}
+
 func (f *firestoreClientManager) Create(collection, document string, fields map[string]any) error {
 	return create(f.ctx, f.client, collection, document, fields)
 }
 
 func (f *firestoreClientManager) Get(collection, document string) (map[string]any, error) {
-	ds, err := f.client.Collection(collection).Doc(document).Get(f.ctx)
-	if err != nil {
-		return nil, fmt.Errorf("error getting document, %s", err)
-	}
-
-	var decoded map[string]any
-	err = ds.DataTo(&decoded)
-	return decoded, err
+	var result map[string]any
+	err := get(f.ctx, f.client, collection, document, &result)
+	return result, err
 }
 
 func (f *firestoreClientManager) Set(collection, document string, fields map[string]any) error {

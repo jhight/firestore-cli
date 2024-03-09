@@ -3,12 +3,12 @@ package commands
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"slices"
 )
 
 func NewDeleteCommand() *cobra.Command {
 	get := &cobra.Command{
 		Use:     "delete <collection> <document>",
-		Aliases: []string{"d"},
 		Short:   "Delete a document by ID",
 		Long:    "Delete a Firestore document from a collection by its ID.",
 		Example: `firestore-cli delete users 1234`,
@@ -29,6 +29,12 @@ func runDeleteCommand(cmd *cobra.Command, args []string) {
 
 	collection := args[0]
 	documentID := args[1]
+
+	// backup before delete, if configured
+	if slices.Contains(cfg.Backup.Commands, "delete") {
+		before, _ := firestore.Get(collection, documentID)
+		backup(collection, documentID, before, nil)
+	}
 
 	err := firestore.Delete(collection, documentID)
 	if err != nil {

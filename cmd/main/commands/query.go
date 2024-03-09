@@ -20,7 +20,7 @@ func NewQueryCommand() *cobra.Command {
 		Use:     "query <collection> [<query>]",
 		Aliases: []string{"q"},
 		Short:   "Execute a query",
-		Long:    "Execute a query against a Firestore collection. See examples below for more information about query JSON syntax.",
+		Long:    "Execute a query against a Firestore collection. See examples below for more information about query JSON syntax. If no query is provided, all documents in the collection will be returned.",
 		Args:    cobra.MinimumNArgs(1),
 		Example: `- gets all users with id 1234
     firestore-cli query users '{"id":{"==":1234}}'
@@ -50,7 +50,10 @@ func NewQueryCommand() *cobra.Command {
     firestore-cli query users '{"address.city":"New York"}' --count
 
 - execute query from stdin
-    cat query.json | firestore-cli query users`,
+    cat query.json | firestore-cli query users
+
+- get all the id of all users, ordered by name and limited to 10
+    firestore-cli query users --order-by "name asc" --limit 10`,
 		PreRun: runRootCommand,
 		Run: func(cmd *cobra.Command, args []string) {
 			runQueryCommand(cmd, args)
@@ -81,14 +84,10 @@ func runQueryCommand(cmd *cobra.Command, args []string) {
 			fmt.Printf("Error: %s\n", err)
 			return
 		}
-	} else {
-		fmt.Println("Error: query is required")
-		return
 	}
 
-	input := store.QueryInput{
+	input := store.SelectionInput{
 		Collection: collection,
-		Query:      query,
 		OrderBy:    make([]store.OrderBy, 0),
 	}
 
@@ -135,7 +134,7 @@ func runQueryCommand(cmd *cobra.Command, args []string) {
 		input.Offset = offset
 	}
 
-	documents, err := firestore.Query(input)
+	documents, err := firestore.Query(input, query)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		return

@@ -8,10 +8,9 @@ import (
 
 func NewCreateCommand() *cobra.Command {
 	create := &cobra.Command{
-		Use:     "create <collection> <document> [<json>]",
-		Aliases: []string{"c"},
-		Short:   "Create a document",
-		Long:    "Set (replace or create) an entire Firestore document with the specified ID using the specified field(s). If a document exists with the same ID, it will be replaced.",
+		Use:   "create <collection> <document> [<json>]",
+		Short: "Create a document",
+		Long:  "Set (replace or create) an entire Firestore document with the specified ID using the specified field(s). If a document exists with the same ID, it will be replaced.",
 		Example: `firestore-cli set users 1234 '{"name": "John Doe", "age": 30, "height": 5.9, "active": true}'
 cat file.json | firestore-cli create users 1234`,
 		Args:   cobra.MinimumNArgs(2),

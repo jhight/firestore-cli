@@ -6,6 +6,19 @@ import (
 	"fmt"
 )
 
+func count(ctx context.Context, client *firestore.Client, collection string) int {
+	iter := client.Collection(collection).Documents(ctx)
+	c := 0
+	for {
+		_, err := iter.Next()
+		if err != nil {
+			break
+		}
+		c++
+	}
+	return c
+}
+
 func create[T any](ctx context.Context, client *firestore.Client, collection string, document string, data T) error {
 	if _, err := client.Collection(collection).Doc(document).Create(ctx, data); err != nil {
 		return fmt.Errorf("error creating document, %s", err)
@@ -22,30 +35,6 @@ func get[T any](ctx context.Context, client *firestore.Client, collection string
 
 	if err = ds.DataTo(value); err != nil {
 		return fmt.Errorf("error decoding document, %s", err)
-	}
-
-	return nil
-}
-
-func query[T any](ctx context.Context, client *firestore.Client, collection string, path string, op FieldOperator, value any, orderByProperty string, direction firestore.Direction, decoded *[]T) error {
-	filter := firestore.PropertyFilter{
-		Path:     path,
-		Operator: string(op),
-		Value:    value,
-	}
-
-	ds, err := client.Collection(collection).WhereEntity(filter).OrderBy(orderByProperty, direction).Documents(ctx).GetAll()
-	if err != nil {
-		return fmt.Errorf("error querying documents, %s", err)
-	}
-
-	for _, d := range ds {
-		var t T
-		if err = d.DataTo(&t); err != nil {
-			// should I return an error here? or just log it?
-			return fmt.Errorf("error decoding document, %s", err)
-		}
-		*decoded = append(*decoded, t)
 	}
 
 	return nil

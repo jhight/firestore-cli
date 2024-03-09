@@ -11,7 +11,9 @@ import (
 )
 
 type Store interface {
-	Query(input QueryInput) ([]map[string]any, error)
+	Count(collection string) int
+	Query(input SelectionInput, filter string) ([]map[string]any, error)
+	List(input SelectionInput, path string) ([]any, error)
 	Create(collection string, document string, fields map[string]any) error
 	Get(collection string, document string) (map[string]any, error)
 	Set(collection string, document string, fields map[string]any) error
@@ -20,9 +22,8 @@ type Store interface {
 	Close() error
 }
 
-type QueryInput struct {
+type SelectionInput struct {
 	Collection string
-	Query      string
 	OrderBy    []OrderBy
 	Limit      int
 	Offset     int
