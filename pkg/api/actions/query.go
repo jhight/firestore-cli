@@ -2,7 +2,7 @@ package actions
 
 import (
 	"fmt"
-	store2 "github.com/jhight/firestore-cli/pkg/api/store"
+	"github.com/jhight/firestore-cli/pkg/api/store"
 	"github.com/spf13/cobra"
 	"strconv"
 	"strings"
@@ -87,9 +87,9 @@ func (a *action) runQuery(_ *cobra.Command, args []string) error {
 		}
 	}
 
-	input := store2.SelectionInput{
+	input := store.SelectionInput{
 		Collection: collection,
-		OrderBy:    make([]store2.OrderBy, 0),
+		OrderBy:    make([]store.OrderBy, 0),
 	}
 
 	if a.command.Flag(flagOrderBy).Changed {
@@ -97,20 +97,20 @@ func (a *action) runQuery(_ *cobra.Command, args []string) error {
 
 		clauses := strings.Split(orderByInput, ",")
 		for _, clause := range clauses {
-			direction := store2.Ascending
+			direction := store.Ascending
 
 			clause = strings.TrimSpace(clause)
-			if strings.HasSuffix(clause, fmt.Sprintf(" %s", store2.Descending)) {
-				direction = store2.Descending
-				clause = strings.TrimSuffix(clause, fmt.Sprintf(" %s", store2.Descending))
-			} else if strings.HasSuffix(clause, fmt.Sprintf(" %s", store2.Ascending)) {
-				direction = store2.Ascending
-				clause = strings.TrimSuffix(clause, fmt.Sprintf(" %s", store2.Ascending))
+			if strings.HasSuffix(clause, fmt.Sprintf(" %s", store.Descending)) {
+				direction = store.Descending
+				clause = strings.TrimSuffix(clause, fmt.Sprintf(" %s", store.Descending))
+			} else if strings.HasSuffix(clause, fmt.Sprintf(" %s", store.Ascending)) {
+				direction = store.Ascending
+				clause = strings.TrimSuffix(clause, fmt.Sprintf(" %s", store.Ascending))
 			}
 
-			orderBy := store2.OrderBy{
+			orderBy := store.OrderBy{
 				Field:     strings.TrimSpace(clause),
-				Direction: store2.Direction(strings.TrimSpace(string(direction))),
+				Direction: store.Direction(strings.TrimSpace(string(direction))),
 			}
 
 			input.OrderBy = append(input.OrderBy, orderBy)

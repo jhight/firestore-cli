@@ -10,6 +10,10 @@ func (f *firestoreClientManager) List(input SelectionInput, path string) ([]any,
 		p = append(p, path)
 	}
 
+	if len(input.Collection) == 0 {
+		return collections(f.ctx, f.client), nil
+	}
+
 	query := f.client.Collection(input.Collection).Select(p...).Offset(input.Offset)
 
 	if input.Limit > 0 {

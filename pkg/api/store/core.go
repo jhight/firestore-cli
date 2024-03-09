@@ -68,3 +68,16 @@ func remove(ctx context.Context, client *firestore.Client, collection string, do
 
 	return nil
 }
+
+func collections(ctx context.Context, client *firestore.Client) []any {
+	iter := client.Collections(ctx)
+	c := make([]any, 0)
+	for {
+		collection, err := iter.Next()
+		if err != nil {
+			break
+		}
+		c = append(c, collection.ID)
+	}
+	return c
+}

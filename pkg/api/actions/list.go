@@ -2,7 +2,7 @@ package actions
 
 import (
 	"fmt"
-	store2 "github.com/jhight/firestore-cli/pkg/api/store"
+	"github.com/jhight/firestore-cli/pkg/api/store"
 	"github.com/spf13/cobra"
 	"strconv"
 	"strings"
@@ -14,14 +14,15 @@ func List(root Action) Action {
 	}
 
 	a.command = &cobra.Command{
-		Use:     "list <collection> [<field>]",
+		Use:     "list [<collection> [<field>]]",
 		Aliases: []string{"l"},
-		Short:   "List documents in a collection",
-		Long:    "List all documents by a specific field (document ID, by default) in the Firestore collection.",
+		Short:   "List documents or collections",
+		Long:    "List all documents in a collection by a specific field (document ID, by default), or all collections if none is specified.",
 		Example: `firestore-cli list users
 firestore-cli list users 'address.city'
-firestore-cli list users 'name' --order-by 'created_at desc' --limit 10`,
-		Args:    cobra.MinimumNArgs(1),
+firestore-cli list users 'name' --order-by 'created_at desc' --limit 10
+firestore-cli list`,
+		Args:    cobra.MinimumNArgs(0),
 		PreRunE: a.initializer.Initialize,
 		RunE:    a.runList,
 	}
@@ -38,6 +39,15 @@ firestore-cli list users 'name' --order-by 'created_at desc' --limit 10`,
 func (a *action) runList(_ *cobra.Command, args []string) error {
 	a.handleHelpFlag()
 
+	if len(args) == 0 {
+		collections, err := a.initializer.Firestore().List(store.SelectionInput{}, "")
+		if err != nil {
+			return err
+		}
+		a.printOutput(collections)
+		return nil
+	}
+
 	collection := args[0]
 
 	field := ""
@@ -45,9 +55,9 @@ func (a *action) runList(_ *cobra.Command, args []string) error {
 		field = args[1]
 	}
 
-	input := store2.SelectionInput{
+	input := store.SelectionInput{
 		Collection: collection,
-		OrderBy:    make([]store2.OrderBy, 0),
+		OrderBy:    make([]store.OrderBy, 0),
 	}
 
 	if a.command.Flag(flagOrderBy).Changed {
@@ -55,20 +65,20 @@ func (a *action) runList(_ *cobra.Command, args []string) error {
 
 		clauses := strings.Split(orderByInput, ",")
 		for _, clause := range clauses {
-			direction := store2.Ascending
+			direction := store.Ascending
 
 			clause = strings.TrimSpace(clause)
-			if strings.HasSuffix(clause, fmt.Sprintf(" %s", store2.Descending)) {
-				direction = store2.Descending
-				clause = strings.TrimSuffix(clause, fmt.Sprintf(" %s", store2.Descending))
-			} else if strings.HasSuffix(clause, fmt.Sprintf(" %s", store2.Ascending)) {
-				direction = store2.Ascending
-				clause = strings.TrimSuffix(clause, fmt.Sprintf(" %s", store2.Ascending))
+			if strings.HasSuffix(clause, fmt.Sprintf(" %s", store.Descending)) {
+				direction = store.Descending
+				clause = strings.TrimSuffix(clause, fmt.Sprintf(" %s", store.Descending))
+			} else if strings.HasSuffix(clause, fmt.Sprintf(" %s", store.Ascending)) {
+				direction = store.Ascending
+				clause = strings.TrimSuffix(clause, fmt.Sprintf(" %s", store.Ascending))
 			}
 
-			orderBy := store2.OrderBy{
+			orderBy := store.OrderBy{
 				Field:     strings.TrimSpace(clause),
-				Direction: store2.Direction(strings.TrimSpace(string(direction))),
+				Direction: store.Direction(strings.TrimSpace(string(direction))),
 			}
 
 			input.OrderBy = append(input.OrderBy, orderBy)
