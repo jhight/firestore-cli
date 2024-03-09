@@ -1,4 +1,4 @@
-package commands
+package actions
 
 import (
 	"fmt"
@@ -15,8 +15,14 @@ const (
 	flagCount   = "count"
 )
 
-func NewQueryCommand() *cobra.Command {
-	cmd := &cobra.Command{
+func Query(root RootAction) *Action {
+	a := &Action{
+		root:      root,
+		firestore: root.Firestore(),
+		cfg:       root.Config(),
+	}
+
+	a.command = &cobra.Command{
 		Use:     "query <collection> [<query>]",
 		Aliases: []string{"q"},
 		Short:   "Execute a query",
@@ -54,35 +60,32 @@ func NewQueryCommand() *cobra.Command {
 
 - get all the id of all users, ordered by name and limited to 10
     firestore-cli query users --order-by "name asc" --limit 10`,
-		PreRun: runRootCommand,
-		Run: func(cmd *cobra.Command, args []string) {
-			runQueryCommand(cmd, args)
-		},
+		PreRunE: a.Initialize,
+		RunE:    a.runQuery,
 	}
 
-	addHelpFlag(cmd)
-	cmd.Flags().StringP(flagOrderBy, "o", "", "Order by expression, including field and direction (asc or desc)")
-	cmd.Flags().Int(flagLimit, 0, "Limit expression")
-	cmd.Flags().Int(flagOffset, 0, "Offset expression")
-	cmd.Flags().BoolP(flagCount, "c", false, "Count the number of documents returned")
+	a.addHelpFlag()
+	a.command.Flags().StringP(flagOrderBy, "o", "", "Order by expression, including field and direction (asc or desc)")
+	a.command.Flags().Int(flagLimit, 0, "Limit expression")
+	a.command.Flags().Int(flagOffset, 0, "Offset expression")
+	a.command.Flags().BoolP(flagCount, "c", false, "Count the number of documents returned")
 
-	return cmd
+	return a
 }
 
-func runQueryCommand(cmd *cobra.Command, args []string) {
-	handleHelpFlag(cmd)
+func (a *Action) runQuery(_ *cobra.Command, args []string) error {
+	a.handleHelpFlag()
 
 	collection := args[0]
 
 	var query string
 	if len(args) > 1 {
 		query = args[1]
-	} else if shouldReadFromStdin(cmd) {
+	} else if a.shouldReadFromStdin() {
 		var err error
-		query, err = readFromStdin(cmd)
+		query, err = a.readFromStdin()
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			return
+			return err
 		}
 	}
 
@@ -91,8 +94,8 @@ func runQueryCommand(cmd *cobra.Command, args []string) {
 		OrderBy:    make([]store.OrderBy, 0),
 	}
 
-	if cmd.Flag(flagOrderBy).Changed {
-		orderByInput := cmd.Flag(flagOrderBy).Value.String()
+	if a.command.Flag(flagOrderBy).Changed {
+		orderByInput := a.command.Flag(flagOrderBy).Value.String()
 
 		clauses := strings.Split(orderByInput, ",")
 		for _, clause := range clauses {
@@ -116,34 +119,32 @@ func runQueryCommand(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if cmd.Flag(flagLimit).Changed {
-		limit, err := strconv.Atoi(cmd.Flag(flagLimit).Value.String())
+	if a.command.Flag(flagLimit).Changed {
+		limit, err := strconv.Atoi(a.command.Flag(flagLimit).Value.String())
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			return
+			return err
 		}
 		input.Limit = limit
 	}
 
-	if cmd.Flag(flagOffset).Changed {
-		offset, err := strconv.Atoi(cmd.Flag(flagOffset).Value.String())
+	if a.command.Flag(flagOffset).Changed {
+		offset, err := strconv.Atoi(a.command.Flag(flagOffset).Value.String())
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			return
+			return err
 		}
 		input.Offset = offset
 	}
 
-	documents, err := firestore.Query(input, query)
+	documents, err := a.firestore.Query(input, query)
 	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		return
+		return err
 	}
 
-	if cmd.Flag(flagCount).Value.String() == "true" {
-		printOutput(map[string]any{"$count": len(documents)})
-		return
+	if a.command.Flag(flagCount).Value.String() == "true" {
+		a.printOutput(map[string]any{"$count": len(documents)})
+	} else {
+		a.printOutput(documents)
 	}
 
-	printOutput(documents)
+	return nil
 }

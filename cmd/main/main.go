@@ -1,12 +1,23 @@
 package main
 
 import (
-	"github.com/jhight/firestore-cli/cmd/main/commands"
+	"github.com/jhight/firestore-cli/cmd/main/actions"
 	"os"
 )
 
 func main() {
-	root := commands.NewRootCommand()
+	root := actions.Root()
+
+	root.Add(
+		actions.Get(root),
+		actions.Count(root),
+		actions.Create(root),
+		actions.Update(root),
+		actions.Set(root),
+		actions.Delete(root),
+		actions.Query(root),
+		actions.List(root),
+	)
 
 	err := root.Execute()
 	if err != nil {

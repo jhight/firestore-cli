@@ -1,17 +1,16 @@
-package commands
+package actions
 
 import (
 	"encoding/json"
-	"github.com/jhight/firestore-cli/pkg/config"
 )
 
-func toJSON(cfg config.Config, value any) (string, error) {
+func (a *Action) toJSON(value any) (string, error) {
 	var bytes []byte
 	var err error
 
-	if cfg.PrettyPrint && !cfg.Raw {
+	if a.cfg.PrettyPrint && !a.cfg.Raw {
 		spacing := ""
-		for i := 0; i < cfg.PrettySpacing; i++ {
+		for i := 0; i < a.cfg.PrettySpacing; i++ {
 			spacing += " "
 		}
 

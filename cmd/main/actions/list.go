@@ -1,4 +1,4 @@
-package commands
+package actions
 
 import (
 	"fmt"
@@ -8,8 +8,14 @@ import (
 	"strings"
 )
 
-func NewListCommand() *cobra.Command {
-	cmd := &cobra.Command{
+func List(root RootAction) *Action {
+	a := &Action{
+		root:      root,
+		firestore: root.Firestore(),
+		cfg:       root.Config(),
+	}
+
+	a.command = &cobra.Command{
 		Use:     "list <collection> [<field>]",
 		Aliases: []string{"l"},
 		Short:   "List documents in a collection",
@@ -17,24 +23,22 @@ func NewListCommand() *cobra.Command {
 		Example: `firestore-cli list users
 firestore-cli list users 'address.city'
 firestore-cli list users 'name' --order-by 'created_at desc' --limit 10`,
-		Args:   cobra.MinimumNArgs(1),
-		PreRun: runRootCommand,
-		Run: func(cmd *cobra.Command, args []string) {
-			runListCommand(cmd, args)
-		},
+		Args:    cobra.MinimumNArgs(1),
+		PreRunE: a.Initialize,
+		RunE:    a.runList,
 	}
 
-	addHelpFlag(cmd)
-	cmd.Flags().StringP(flagOrderBy, "o", "", "Order by expression, including field and direction (asc or desc)")
-	cmd.Flags().Int(flagLimit, 0, "Limit expression")
-	cmd.Flags().Int(flagOffset, 0, "Offset expression")
-	cmd.Flags().BoolP(flagCount, "c", false, "Count the number of documents returned")
+	a.addHelpFlag()
+	a.command.Flags().StringP(flagOrderBy, "o", "", "Order by expression, including field and direction (asc or desc)")
+	a.command.Flags().Int(flagLimit, 0, "Limit expression")
+	a.command.Flags().Int(flagOffset, 0, "Offset expression")
+	a.command.Flags().BoolP(flagCount, "c", false, "Count the number of documents returned")
 
-	return cmd
+	return a
 }
 
-func runListCommand(cmd *cobra.Command, args []string) {
-	handleHelpFlag(cmd)
+func (a *Action) runList(_ *cobra.Command, args []string) error {
+	a.handleHelpFlag()
 
 	collection := args[0]
 
@@ -48,8 +52,8 @@ func runListCommand(cmd *cobra.Command, args []string) {
 		OrderBy:    make([]store.OrderBy, 0),
 	}
 
-	if cmd.Flag(flagOrderBy).Changed {
-		orderByInput := cmd.Flag(flagOrderBy).Value.String()
+	if a.command.Flag(flagOrderBy).Changed {
+		orderByInput := a.command.Flag(flagOrderBy).Value.String()
 
 		clauses := strings.Split(orderByInput, ",")
 		for _, clause := range clauses {
@@ -73,34 +77,32 @@ func runListCommand(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if cmd.Flag(flagLimit).Changed {
-		limit, err := strconv.Atoi(cmd.Flag(flagLimit).Value.String())
+	if a.command.Flag(flagLimit).Changed {
+		limit, err := strconv.Atoi(a.command.Flag(flagLimit).Value.String())
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			return
+			return err
 		}
 		input.Limit = limit
 	}
 
-	if cmd.Flag(flagOffset).Changed {
-		offset, err := strconv.Atoi(cmd.Flag(flagOffset).Value.String())
+	if a.command.Flag(flagOffset).Changed {
+		offset, err := strconv.Atoi(a.command.Flag(flagOffset).Value.String())
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			return
+			return err
 		}
 		input.Offset = offset
 	}
 
-	documents, err := firestore.List(input, field)
+	documents, err := a.firestore.List(input, field)
 	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-		return
+		return err
 	}
 
-	if cmd.Flag(flagCount).Value.String() == "true" {
-		printOutput(map[string]any{"$count": len(documents)})
-		return
+	if a.command.Flag(flagCount).Value.String() == "true" {
+		a.printOutput(map[string]any{"$count": len(documents)})
+	} else {
+		a.printOutput(documents)
 	}
 
-	printOutput(documents)
+	return nil
 }
