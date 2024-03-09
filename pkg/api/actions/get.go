@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
-func Get(root RootAction) *Action {
-	a := &Action{
-		root: root,
+func Get(root Action) Action {
+	a := &action{
+		initializer: root.Initializer(),
 	}
 
 	a.command = &cobra.Command{
@@ -20,7 +20,7 @@ func Get(root RootAction) *Action {
 		firestore-cli get users 1234 name
 		firestore-cli get users 1234 address.city`,
 		Args:    cobra.MinimumNArgs(2),
-		PreRunE: a.Initialize,
+		PreRunE: a.initializer.Initialize,
 		RunE:    a.runGet,
 	}
 
@@ -29,7 +29,7 @@ func Get(root RootAction) *Action {
 	return a
 }
 
-func (a *Action) runGet(_ *cobra.Command, args []string) error {
+func (a *action) runGet(_ *cobra.Command, args []string) error {
 	a.handleHelpFlag()
 
 	collection := args[0]
@@ -40,7 +40,7 @@ func (a *Action) runGet(_ *cobra.Command, args []string) error {
 		field = args[2]
 	}
 
-	document, err := a.firestore.Get(collection, documentID)
+	document, err := a.initializer.Firestore().Get(collection, documentID)
 	if err != nil {
 		return err
 	}

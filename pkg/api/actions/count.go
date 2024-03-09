@@ -4,11 +4,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func Count(root RootAction) *Action {
-	a := &Action{
-		root:      root,
-		cfg:       root.Config(),
-		firestore: root.Firestore(),
+func Count(root Action) Action {
+	a := &action{
+		initializer: root.Initializer(),
 	}
 
 	a.command = &cobra.Command{
@@ -18,7 +16,7 @@ func Count(root RootAction) *Action {
 		Long:    "Returns a count of all documents in a Firestore collection.",
 		Example: `firestore-cli count users`,
 		Args:    cobra.ExactArgs(1),
-		PreRunE: a.Initialize,
+		PreRunE: a.initializer.Initialize,
 		RunE:    a.runCount,
 	}
 
@@ -27,10 +25,10 @@ func Count(root RootAction) *Action {
 	return a
 }
 
-func (a *Action) runCount(_ *cobra.Command, args []string) error {
+func (a *action) runCount(_ *cobra.Command, args []string) error {
 	a.handleHelpFlag()
 	collection := args[0]
-	count := a.firestore.Count(collection)
+	count := a.initializer.Firestore().Count(collection)
 	a.printOutput(map[string]any{"$count": count})
 	return nil
 }

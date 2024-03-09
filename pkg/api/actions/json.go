@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 )
 
-func (a *Action) toJSON(value any) (string, error) {
+func (a *action) toJSON(value any) (string, error) {
 	var bytes []byte
 	var err error
 
-	if a.cfg.PrettyPrint && !a.cfg.Raw {
+	if a.initializer.Config().PrettyPrint && !a.initializer.Config().RawPrint {
 		spacing := ""
-		for i := 0; i < a.cfg.PrettySpacing; i++ {
+		for i := 0; i < a.initializer.Config().PrettySpacing; i++ {
 			spacing += " "
 		}
 

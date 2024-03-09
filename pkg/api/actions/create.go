@@ -7,11 +7,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func Create(root RootAction) *Action {
-	a := &Action{
-		root:      root,
-		firestore: root.Firestore(),
-		cfg:       root.Config(),
+func Create(root Action) Action {
+	a := &action{
+		initializer: root.Initializer(),
 	}
 
 	a.command = &cobra.Command{
@@ -21,7 +19,7 @@ func Create(root RootAction) *Action {
 		Example: `firestore-cli set users 1234 '{"name": "John Doe", "age": 30, "height": 5.9, "active": true}'
 cat file.json | firestore-cli create users 1234`,
 		Args:    cobra.MinimumNArgs(2),
-		PreRunE: a.Initialize,
+		PreRunE: a.initializer.Initialize,
 		RunE:    a.runCreate,
 	}
 
@@ -30,7 +28,7 @@ cat file.json | firestore-cli create users 1234`,
 	return a
 }
 
-func (a *Action) runCreate(_ *cobra.Command, args []string) error {
+func (a *action) runCreate(_ *cobra.Command, args []string) error {
 	a.handleHelpFlag()
 
 	collection := args[0]
@@ -55,7 +53,7 @@ func (a *Action) runCreate(_ *cobra.Command, args []string) error {
 
 	switch u.(type) {
 	case map[string]any:
-		err = a.firestore.Create(collection, documentID, u.(map[string]any))
+		err = a.initializer.Firestore().Create(collection, documentID, u.(map[string]any))
 		if err != nil {
 			return err
 		}

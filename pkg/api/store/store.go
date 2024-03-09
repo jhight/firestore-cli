@@ -10,6 +10,7 @@ import (
 	"strings"
 )
 
+//go:generate go run go.uber.org/mock/mockgen -typed -package $GOPACKAGE -source $GOFILE -destination $GOFILE.mocks.go
 type Store interface {
 	Count(collection string) int
 	Query(input SelectionInput, filter string) ([]map[string]any, error)

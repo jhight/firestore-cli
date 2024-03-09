@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/jhight/firestore-cli/cmd/main/actions"
+	"github.com/jhight/firestore-cli/pkg/api/actions"
 	"os"
 )
 
 func main() {
-	root := actions.Root()
+	root := actions.Root(nil)
 
 	root.Add(
 		actions.Get(root),

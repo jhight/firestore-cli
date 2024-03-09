@@ -39,7 +39,6 @@ func (f *firestoreClientManager) Update(collection, ID string, fields map[string
 
 func (f *firestoreClientManager) Delete(collection, document string) error {
 	return remove(f.ctx, f.client, collection, document)
-
 }
 
 func (f *firestoreClientManager) Close() error {

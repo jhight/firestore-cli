@@ -8,11 +8,9 @@ import (
 	"slices"
 )
 
-func Update(root RootAction) *Action {
-	a := &Action{
-		root:      root,
-		firestore: root.Firestore(),
-		cfg:       root.Config(),
+func Update(root Action) Action {
+	a := &action{
+		initializer: root.Initializer(),
 	}
 
 	a.command = &cobra.Command{
@@ -23,7 +21,7 @@ func Update(root RootAction) *Action {
 		Example: `firestore-cli update users 1234 '{"name": "John Doe", "age": 30, "height": 5.9, "active": true}'
 cat file.json | firestore-cli update users 1234`,
 		Args:    cobra.MinimumNArgs(2),
-		PreRunE: a.Initialize,
+		PreRunE: a.initializer.Initialize,
 		RunE:    a.runUpdate,
 	}
 
@@ -32,7 +30,7 @@ cat file.json | firestore-cli update users 1234`,
 	return a
 }
 
-func (a *Action) runUpdate(_ *cobra.Command, args []string) error {
+func (a *action) runUpdate(_ *cobra.Command, args []string) error {
 	a.handleHelpFlag()
 
 	collection := args[0]
@@ -60,16 +58,16 @@ func (a *Action) runUpdate(_ *cobra.Command, args []string) error {
 	}
 
 	// backup before update, if configured
-	if slices.Contains(a.cfg.Backup.Commands, "update") {
-		before, _ := a.firestore.Get(collection, documentID)
-		err = a.firestore.Update(collection, documentID, fields)
+	if slices.Contains(a.initializer.Config().Backup.Commands, "update") {
+		before, _ := a.initializer.Firestore().Get(collection, documentID)
+		err = a.initializer.Firestore().Update(collection, documentID, fields)
 		if err != nil {
 			return err
 		}
-		after, _ := a.firestore.Get(collection, documentID)
+		after, _ := a.initializer.Firestore().Get(collection, documentID)
 		a.backup(collection, documentID, before, after)
 	} else {
-		err = a.firestore.Update(collection, documentID, fields)
+		err = a.initializer.Firestore().Update(collection, documentID, fields)
 		if err != nil {
 			return err
 		}
