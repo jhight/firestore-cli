@@ -112,8 +112,10 @@ func remove(ctx context.Context, client *firestore.Client, path string) error {
 
 func removeCollection(ctx context.Context, client *firestore.Client, cr *firestore.CollectionRef) error {
 	if cr == nil {
-		return nil
+		return fmt.Errorf("invalid collection reference, %s", cr.Path)
 	}
+
+	removed := 0
 
 	iter := cr.Documents(ctx)
 	for {
@@ -128,6 +130,12 @@ func removeCollection(ctx context.Context, client *firestore.Client, cr *firesto
 		if err = removeDocument(ctx, client, ds.Ref); err != nil {
 			return fmt.Errorf("error deleting document, %s", err)
 		}
+
+		removed++
+	}
+
+	if removed == 0 {
+		return fmt.Errorf("invalid collection reference, %s", cr.Path)
 	}
 
 	return nil
@@ -135,7 +143,7 @@ func removeCollection(ctx context.Context, client *firestore.Client, cr *firesto
 
 func removeDocument(ctx context.Context, client *firestore.Client, dr *firestore.DocumentRef) error {
 	if dr == nil {
-		return nil
+		return fmt.Errorf("invalid document reference, %s", dr.Path)
 	}
 
 	iter := dr.Collections(ctx)
