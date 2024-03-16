@@ -34,7 +34,7 @@ func (f *firestoreClientManager) Query(input SelectionInput, filter string) ([]m
 
 	if len(input.OrderBy) > 0 {
 		for _, o := range input.OrderBy {
-			q = q.OrderBy(o.Field, toFirestoreDirection(o.Direction))
+			q = q.OrderBy(o.Field, o.Direction.toFirestoreDirection())
 		}
 	}
 

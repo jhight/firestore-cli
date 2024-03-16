@@ -47,8 +47,8 @@ const (
 	Descending Direction = "desc"
 )
 
-func toFirestoreDirection(direction Direction) firestore.Direction {
-	if direction == Descending {
+func (d Direction) toFirestoreDirection() firestore.Direction {
+	if d == Descending {
 		return firestore.Desc
 	}
 	return firestore.Asc

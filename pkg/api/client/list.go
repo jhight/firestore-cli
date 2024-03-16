@@ -26,7 +26,7 @@ func (f *firestoreClientManager) List(input SelectionInput, fieldPath string) ([
 	}
 
 	for _, o := range input.OrderBy {
-		query = query.OrderBy(o.Field, toFirestoreDirection(o.Direction))
+		query = query.OrderBy(o.Field, o.Direction.toFirestoreDirection())
 	}
 
 	iter := query.Documents(f.ctx)
