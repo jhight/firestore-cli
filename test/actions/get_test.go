@@ -19,7 +19,7 @@ func TestGetAction(t *testing.T) {
 
 	root := actions.Root(actions.DefaultsInitializer(config.Config{}, mockStore))
 	root.Add(mockGetAction)
-	root.SetArgs([]string{"get", "example-collection", "example-document"})
+	root.SetArgs([]string{"get", "example-path"})
 
 	err := root.Execute()
 	assert.Nil(t, err)

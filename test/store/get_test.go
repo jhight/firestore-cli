@@ -15,13 +15,13 @@ func TestGetAction(t *testing.T) {
 
 	root := actions.Root(actions.DefaultsInitializer(config.Config{}, mockStore))
 	root.Add(actions.Get(root))
-	root.SetArgs([]string{"get", "example-collection", "example-document"})
+	root.SetArgs([]string{"get", "example-path"})
 
 	example := map[string]any{
 		"foo": "bar",
 	}
 
-	mockStore.EXPECT().Get("example-collection", "example-document").Return(example, nil)
+	mockStore.EXPECT().Get("example-path").Return(example, nil)
 
 	err := root.Execute()
 	assert.Nil(t, err)
