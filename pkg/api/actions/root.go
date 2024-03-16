@@ -2,6 +2,8 @@ package actions
 
 import (
 	"github.com/spf13/cobra"
+	"os"
+	"strings"
 )
 
 const defaultConfigPath = "~/.firestore-cli.yaml"
@@ -27,10 +29,10 @@ func Root(i Initializer) Action {
 	}
 
 	root.command = &cobra.Command{
-		Use:     "firestore-cli",
-		Short:   "A Firebase Firestore command line interface",
-		Long:    "A command line interface for Firebase Firestore, allowing querying and CRUD operations on collections and documents.",
-		Example: `firestore-cli get accounts account-1234`,
+		Use:     os.Args[0],
+		Short:   "A Firebase Firestore command line utility",
+		Long:    "A command line utility for Firebase Firestore, allowing querying and CRUD operations on collections and documents.",
+		Example: strings.ReplaceAll(`%E get accounts account-1234`, "%E", os.Args[0]),
 		PreRunE: i.Initialize,
 		RunE:    root.run,
 	}

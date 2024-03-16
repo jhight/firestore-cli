@@ -1,4 +1,4 @@
-package store
+package client
 
 import (
 	"cloud.google.com/go/firestore"
@@ -11,7 +11,7 @@ func (f *firestoreClientManager) Query(input SelectionInput, filter string) ([]m
 
 	if len(filter) == 0 {
 		// if no filter is provided, return all documents
-		q = f.client.Collection(input.Collection).Offset(input.Offset)
+		q = f.client.Collection(input.CollectionPath).Offset(input.Offset)
 	} else {
 		// parse the filter and create a query
 		var body map[string]any
@@ -28,7 +28,7 @@ func (f *firestoreClientManager) Query(input SelectionInput, filter string) ([]m
 		parse(root)
 
 		q = f.client.
-			Collection(input.Collection).
+			Collection(input.CollectionPath).
 			WhereEntity(root.toEntityFilter())
 	}
 

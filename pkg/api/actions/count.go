@@ -2,6 +2,8 @@ package actions
 
 import (
 	"github.com/spf13/cobra"
+	"os"
+	"strings"
 )
 
 func Count(root Action) Action {
@@ -10,11 +12,12 @@ func Count(root Action) Action {
 	}
 
 	a.command = &cobra.Command{
-		Use:     "count <collection>",
+		Use:     "count <path>",
 		Aliases: []string{"c"},
 		Short:   "Returns a count of all documents in a collection",
 		Long:    "Returns a count of all documents in a Firestore collection.",
-		Example: `firestore-cli count users`,
+		Example: strings.ReplaceAll(`%E count users
+%E count users/1234/orders`, "%E", os.Args[0]),
 		Args:    cobra.ExactArgs(1),
 		PreRunE: a.initializer.Initialize,
 		RunE:    a.runCount,

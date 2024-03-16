@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
+	"os"
+	"strings"
 )
 
 func Create(root Action) Action {
@@ -13,12 +15,14 @@ func Create(root Action) Action {
 	}
 
 	a.command = &cobra.Command{
-		Use:   "create <collection> <document> [<json>]",
-		Short: "Create a document",
-		Long:  "Set (replace or create) an entire Firestore document with the specified ID using the specified field(s). If a document exists with the same ID, it will be replaced.",
-		Example: `firestore-cli set users 1234 '{"name": "John Doe", "age": 30, "height": 5.9, "active": true}'
-cat file.json | firestore-cli create users 1234`,
-		Args:    cobra.MinimumNArgs(2),
+		Use:     "create <path> [<json>]",
+		Aliases: []string{"insert"},
+		Short:   "Create a document",
+		Long:    "Create a Firestore document with the specified ID using the specified field(s). If a document exists with the same ID, it will be replaced.",
+		Example: strings.ReplaceAll(`%E set users/1234 '{"name": "John Doe", "age": 30, "height": 5.9, "active": true}'
+%E create users/1234/orders/5678 '{"item": "shoes", "quantity": 1, "price": 100.00}'
+cat file.json | %E create users 1234`, "%E", os.Args[0]),
+		Args:    cobra.MinimumNArgs(1),
 		PreRunE: a.initializer.Initialize,
 		RunE:    a.runCreate,
 	}
@@ -31,12 +35,11 @@ cat file.json | firestore-cli create users 1234`,
 func (a *action) runCreate(_ *cobra.Command, args []string) error {
 	a.handleHelpFlag()
 
-	collection := args[0]
-	documentID := args[1]
+	path := args[0]
 
 	var jsonValue string
-	if len(args) >= 3 {
-		jsonValue = args[2]
+	if len(args) >= 2 {
+		jsonValue = args[1]
 	} else if a.shouldReadFromStdin() {
 		var err error
 		jsonValue, err = a.readFromStdin()
@@ -53,7 +56,7 @@ func (a *action) runCreate(_ *cobra.Command, args []string) error {
 
 	switch u.(type) {
 	case map[string]any:
-		err = a.initializer.Firestore().Create(collection, documentID, u.(map[string]any))
+		err = a.initializer.Firestore().Create(path, u.(map[string]any))
 		if err != nil {
 			return err
 		}
@@ -61,6 +64,6 @@ func (a *action) runCreate(_ *cobra.Command, args []string) error {
 		return errors.New("invalid JSON format")
 	}
 
-	fmt.Printf("%s/%s successfully created\n", collection, documentID)
+	fmt.Printf("%s successfully created\n", path)
 	return nil
 }

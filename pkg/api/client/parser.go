@@ -1,4 +1,4 @@
-package store
+package client
 
 import (
 	"cloud.google.com/go/firestore"

@@ -1,4 +1,4 @@
-package store
+package client
 
 import (
 	"cloud.google.com/go/firestore"
@@ -14,20 +14,20 @@ import (
 type Store interface {
 	Count(collection string) int
 	Query(input SelectionInput, filter string) ([]map[string]any, error)
-	List(input SelectionInput, path string) ([]any, error)
-	Create(collection string, document string, fields map[string]any) error
-	Get(collection string, document string) (map[string]any, error)
-	Set(collection string, document string, fields map[string]any) error
-	Update(collection string, document string, fields map[string]any) error
-	Delete(collection string, document string) error
+	List(input SelectionInput, fieldPath string) ([]any, error)
+	Create(path string, fields map[string]any) error
+	Get(path string) (map[string]any, error)
+	Set(path string, fields map[string]any) error
+	Update(path string, fields map[string]any) error
+	Delete(path string) error
 	Close() error
 }
 
 type SelectionInput struct {
-	Collection string
-	OrderBy    []OrderBy
-	Limit      int
-	Offset     int
+	CollectionPath string
+	OrderBy        []OrderBy
+	Limit          int
+	Offset         int
 }
 
 type OrderBy struct {

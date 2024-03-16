@@ -2,8 +2,9 @@ package actions
 
 import (
 	"fmt"
-	"github.com/jhight/firestore-cli/pkg/api/store"
+	"github.com/jhight/firestore-cli/pkg/api/client"
 	"github.com/spf13/cobra"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -26,38 +27,41 @@ func Query(root Action) Action {
 		Short:   "Execute a query",
 		Long:    "Execute a query against a Firestore collection. See examples below for more information about query JSON syntax. If no query is provided, all documents in the collection will be returned.",
 		Args:    cobra.MinimumNArgs(1),
-		Example: `- gets all users with id 1234
-    firestore-cli query users '{"id":{"==":1234}}'
+		Example: strings.ReplaceAll(`- gets all users with id 1234
+    %E query users '{"id":{"==":1234}}'
 
 - shorter, also gets all users with id 1234 ("==" is the default field operator)
-    firestore-cli query users '{"id":1234}'
+    %E query users '{"id":1234}'
 
 - same as above, ordered by age descending then name ascending, and limited to 10
-    firestore-cli query users '{"id":1234}' --order-by "age desc, name asc" --limit 10
+    %E query users '{"id":1234}' --order-by "age desc, name asc" --limit 10
+
+- get all orders by user 1234 over $100 (orders is a subcollection of users)
+	%E query users/1234/orders '{"price":{">":100}}'
 
 - gets all users with id 1234 and age > 30
-    firestore-cli query users '{"$and":{"id":1234,"age":{">":30}}}'
+    %E query users '{"$and":{"id":1234,"age":{">":30}}}'
 
 - shorter, also gets all users with id 1234 and age > 30 ("$and" is the default composite operator)
-    firestore-cli query users '{"id":1234,"age":{">":30}}'
+    %E query users '{"id":1234,"age":{">":30}}'
 
 - complex filter: a = "abc" and b > 30 and (c = true or (d <= 25 and e != "def"))
-    firestore-cli query users '{"$and":{"a":"abc","b":{">":30},"$or":{"c":true,"$and":{"d":{"<=":25},"e":{"!=":"def"}}}}'
+    %E query users '{"$and":{"a":"abc","b":{">":30},"$or":{"c":true,"$and":{"d":{"<=":25},"e":{"!=":"def"}}}}'
 
 - shorter version of the above, without explicit outer $and composite operator
-    firestore-cli query users '{"a":"abc","b":{">":30},"$or":{"c":true,"$and":{"d":{"<=":25},"e":{"!=":"def"}}}}'
+    %E query users '{"a":"abc","b":{">":30},"$or":{"c":true,"$and":{"d":{"<=":25},"e":{"!=":"def"}}}}'
 
 - get all users where address city is one of: "New York", "Los Angeles", or "Chicago"
-	firestore-cli query users '{"address.city":{"$in":["New York","Los Angeles","Chicago"]}}'
+	%E query users '{"address.city":{"$in":["New York","Los Angeles","Chicago"]}}'
 
 - get the count of all users with address.city of "New York"
-    firestore-cli query users '{"address.city":"New York"}' --count
+    %E query users '{"address.city":"New York"}' --count
 
 - execute query from stdin
-    cat query.json | firestore-cli query users
+    cat query.json | %E query users
 
 - get all the id of all users, ordered by name and limited to 10
-    firestore-cli query users --order-by "name asc" --limit 10`,
+    %E query users --order-by "name asc" --limit 10`, "%E", os.Args[0]),
 		PreRunE: a.initializer.Initialize,
 		RunE:    a.runQuery,
 	}
@@ -74,7 +78,7 @@ func Query(root Action) Action {
 func (a *action) runQuery(_ *cobra.Command, args []string) error {
 	a.handleHelpFlag()
 
-	collection := args[0]
+	path := args[0]
 
 	var query string
 	if len(args) > 1 {
@@ -87,9 +91,9 @@ func (a *action) runQuery(_ *cobra.Command, args []string) error {
 		}
 	}
 
-	input := store.SelectionInput{
-		Collection: collection,
-		OrderBy:    make([]store.OrderBy, 0),
+	input := client.SelectionInput{
+		CollectionPath: path,
+		OrderBy:        make([]client.OrderBy, 0),
 	}
 
 	if a.command.Flag(flagOrderBy).Changed {
@@ -97,20 +101,20 @@ func (a *action) runQuery(_ *cobra.Command, args []string) error {
 
 		clauses := strings.Split(orderByInput, ",")
 		for _, clause := range clauses {
-			direction := store.Ascending
+			direction := client.Ascending
 
 			clause = strings.TrimSpace(clause)
-			if strings.HasSuffix(clause, fmt.Sprintf(" %s", store.Descending)) {
-				direction = store.Descending
-				clause = strings.TrimSuffix(clause, fmt.Sprintf(" %s", store.Descending))
-			} else if strings.HasSuffix(clause, fmt.Sprintf(" %s", store.Ascending)) {
-				direction = store.Ascending
-				clause = strings.TrimSuffix(clause, fmt.Sprintf(" %s", store.Ascending))
+			if strings.HasSuffix(clause, fmt.Sprintf(" %s", client.Descending)) {
+				direction = client.Descending
+				clause = strings.TrimSuffix(clause, fmt.Sprintf(" %s", client.Descending))
+			} else if strings.HasSuffix(clause, fmt.Sprintf(" %s", client.Ascending)) {
+				direction = client.Ascending
+				clause = strings.TrimSuffix(clause, fmt.Sprintf(" %s", client.Ascending))
 			}
 
-			orderBy := store.OrderBy{
+			orderBy := client.OrderBy{
 				Field:     strings.TrimSpace(clause),
-				Direction: store.Direction(strings.TrimSpace(string(direction))),
+				Direction: client.Direction(strings.TrimSpace(string(direction))),
 			}
 
 			input.OrderBy = append(input.OrderBy, orderBy)

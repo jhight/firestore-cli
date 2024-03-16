@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
+	"os"
 	"slices"
+	"strings"
 )
 
 func Update(root Action) Action {
@@ -14,13 +16,14 @@ func Update(root Action) Action {
 	}
 
 	a.command = &cobra.Command{
-		Use:     "update <collection> <document> [<json>]",
+		Use:     "update <path> [<json>]",
 		Aliases: []string{"u"},
-		Short:   "Update a document",
+		Short:   "Update specific properties in a document",
 		Long:    "Update the specified Firestore document with the specified JSON data. Other fields will remain unchanged. If the field does not exist, it will be created. If the specified document does not exist, a new one will not be created.",
-		Example: `firestore-cli update users 1234 '{"name": "John Doe", "age": 30, "height": 5.9, "active": true}'
-cat file.json | firestore-cli update users 1234`,
-		Args:    cobra.MinimumNArgs(2),
+		Example: strings.ReplaceAll(`%E update users/1234 '{"name": "John Doe", "age": 30, "height": 5.9, "active": true}'
+%E update users/1234/orders/5678 '{"item": "shoes"}'
+cat file.json | %E update users 1234`, "%E", os.Args[0]),
+		Args:    cobra.MinimumNArgs(1),
 		PreRunE: a.initializer.Initialize,
 		RunE:    a.runUpdate,
 	}
@@ -33,12 +36,11 @@ cat file.json | firestore-cli update users 1234`,
 func (a *action) runUpdate(_ *cobra.Command, args []string) error {
 	a.handleHelpFlag()
 
-	collection := args[0]
-	documentID := args[1]
+	path := args[0]
 
 	var input string
-	if len(args) == 3 {
-		input = args[2]
+	if len(args) >= 2 {
+		input = args[1]
 	} else if a.shouldReadFromStdin() {
 		var err error
 		input, err = a.readFromStdin()
@@ -59,20 +61,20 @@ func (a *action) runUpdate(_ *cobra.Command, args []string) error {
 
 	// backup before update, if configured
 	if slices.Contains(a.initializer.Config().Backup.Commands, "update") {
-		before, _ := a.initializer.Firestore().Get(collection, documentID)
-		err = a.initializer.Firestore().Update(collection, documentID, fields)
+		before, _ := a.initializer.Firestore().Get(path)
+		err = a.initializer.Firestore().Update(path, fields)
 		if err != nil {
 			return err
 		}
-		after, _ := a.initializer.Firestore().Get(collection, documentID)
-		a.backup(collection, documentID, before, after)
+		after, _ := a.initializer.Firestore().Get(path)
+		a.backup(path, before, after)
 	} else {
-		err = a.initializer.Firestore().Update(collection, documentID, fields)
+		err = a.initializer.Firestore().Update(path, fields)
 		if err != nil {
 			return err
 		}
 	}
 
-	fmt.Printf("%s/%s successfully updated\n", collection, documentID)
+	fmt.Printf("%s successfully updated\n", path)
 	return nil
 }

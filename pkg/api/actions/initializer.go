@@ -3,7 +3,7 @@ package actions
 import (
 	"context"
 	"fmt"
-	"github.com/jhight/firestore-cli/pkg/api/store"
+	"github.com/jhight/firestore-cli/pkg/api/client"
 	"github.com/jhight/firestore-cli/pkg/config"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -14,17 +14,17 @@ import (
 
 type Initializer interface {
 	Initialize(cmd *cobra.Command, _ []string) error
-	Firestore() store.Store
+	Firestore() client.Store
 	Config() config.Config
 }
 
 type initializer struct {
 	initialized bool
 	cfg         config.Config
-	firestore   store.Store
+	firestore   client.Store
 }
 
-func DefaultsInitializer(cfg config.Config, firestore store.Store) Initializer {
+func DefaultsInitializer(cfg config.Config, firestore client.Store) Initializer {
 	return &initializer{
 		initialized: true,
 		cfg:         cfg,
@@ -43,7 +43,7 @@ func (i *initializer) Initialize(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	i.firestore, err = store.New(context.Background(), i.cfg)
+	i.firestore, err = client.New(context.Background(), i.cfg)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (i *initializer) Initialize(cmd *cobra.Command, _ []string) error {
 	return nil
 }
 
-func (i *initializer) Firestore() store.Store {
+func (i *initializer) Firestore() client.Store {
 	return i.firestore
 }
 

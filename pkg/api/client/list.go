@@ -1,20 +1,25 @@
-package store
+package client
 
 import (
 	"fmt"
 )
 
-func (f *firestoreClientManager) List(input SelectionInput, path string) ([]any, error) {
+func (f *firestoreClientManager) List(input SelectionInput, fieldPath string) ([]any, error) {
 	p := make([]string, 0)
-	if len(path) > 0 {
-		p = append(p, path)
+	if len(fieldPath) > 0 {
+		p = append(p, fieldPath)
 	}
 
-	if len(input.Collection) == 0 {
+	if len(input.CollectionPath) == 0 {
 		return collections(f.ctx, f.client), nil
 	}
 
-	query := f.client.Collection(input.Collection).Select(p...).Offset(input.Offset)
+	cr := f.client.Collection(input.CollectionPath)
+	if cr == nil {
+		return nil, fmt.Errorf("invalid collection, %s", input.CollectionPath)
+	}
+
+	query := cr.Select(p...).Offset(input.Offset)
 
 	if input.Limit > 0 {
 		query = query.Limit(input.Limit)
@@ -33,7 +38,7 @@ func (f *firestoreClientManager) List(input SelectionInput, path string) ([]any,
 			break
 		}
 
-		if len(path) == 0 {
+		if len(fieldPath) == 0 {
 			result = append(result, ds.Ref.ID)
 			continue
 		}

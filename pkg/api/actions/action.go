@@ -77,7 +77,7 @@ func (a *action) printOutput(value any) {
 	}
 }
 
-func (a *action) backup(collection string, documentID string, before map[string]any, after map[string]any) {
+func (a *action) backup(path string, before map[string]any, after map[string]any) {
 	bc := a.initializer.Config().Backup.Collection
 	if len(bc) == 0 {
 		bc = defaultBackupCollection
@@ -85,15 +85,14 @@ func (a *action) backup(collection string, documentID string, before map[string]
 
 	b := map[string]any{
 		"created_at": time.Now(),
-		"collection": collection,
-		"document":   documentID,
+		"path":       path,
 		"before":     before,
 		"after":      after,
 	}
 
 	bi := fmt.Sprintf("%d", time.Now().UnixMilli())
 
-	err := a.initializer.Firestore().Create(bc, bi, b)
+	err := a.initializer.Firestore().Create(fmt.Sprintf("%s/%s", bc, bi), b)
 	if err != nil {
 		fmt.Printf("Failed to create backup: %s\n", err)
 	}

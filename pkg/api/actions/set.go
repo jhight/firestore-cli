@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
+	"os"
 	"slices"
+	"strings"
 )
 
 func Set(root Action) Action {
@@ -14,12 +16,14 @@ func Set(root Action) Action {
 	}
 
 	a.command = &cobra.Command{
-		Use:   "set <collection> <document> [<json>]",
-		Short: "Set a document",
-		Long:  "Set (e.g., create or replace) the entire specified Firestore document with specified JSON data. Only the specified fields will exist in the document. If the document does not exist, it will be created.",
-		Example: `firestore-cli set users 1234 '{"name": "John Doe", "age": 30, "height": 5.9, "active": true}'
-cat file.json | firestore-cli set users 1234`,
-		Args:    cobra.MinimumNArgs(2),
+		Use:     "set <path> [<json>]",
+		Aliases: []string{"import"},
+		Short:   "Set (e.g., create or replace) a document",
+		Long:    "Set the entire specified Firestore document with specified JSON data. Only the specified fields will exist in the document. If the document does not exist, it will be created.",
+		Example: strings.ReplaceAll(`%E set users/1234 '{"name": "John Doe", "age": 30, "height": 5.9, "active": true}'
+%E set users/1234/orders/5678 '{"item": "shoes", "quantity": 1, "price": 100.00}'
+cat file.json | %E set users/1234`, "%E", os.Args[0]),
+		Args:    cobra.MinimumNArgs(1),
 		PreRunE: a.initializer.Initialize,
 		RunE:    a.runSet,
 	}
@@ -32,12 +36,11 @@ cat file.json | firestore-cli set users 1234`,
 func (a *action) runSet(_ *cobra.Command, args []string) error {
 	a.handleHelpFlag()
 
-	collection := args[0]
-	documentID := args[1]
+	path := args[0]
 
 	var input string
-	if len(args) == 3 {
-		input = args[2]
+	if len(args) >= 2 {
+		input = args[1]
 	} else if a.shouldReadFromStdin() {
 		var err error
 		input, err = a.readFromStdin()
@@ -58,20 +61,20 @@ func (a *action) runSet(_ *cobra.Command, args []string) error {
 
 	// backup before update, if configured
 	if slices.Contains(a.initializer.Config().Backup.Commands, "update") {
-		before, _ := a.initializer.Firestore().Get(collection, documentID)
-		err = a.initializer.Firestore().Set(collection, documentID, fields)
+		before, _ := a.initializer.Firestore().Get(path)
+		err = a.initializer.Firestore().Set(path, fields)
 		if err != nil {
 			return err
 		}
-		after, _ := a.initializer.Firestore().Get(collection, documentID)
-		a.backup(collection, documentID, before, after)
+		after, _ := a.initializer.Firestore().Get(path)
+		a.backup(path, before, after)
 	} else {
-		err = a.initializer.Firestore().Set(collection, documentID, fields)
+		err = a.initializer.Firestore().Set(path, fields)
 		if err != nil {
 			return err
 		}
 	}
 
-	fmt.Printf("%s/%s successfully set\n", collection, documentID)
+	fmt.Printf("%s successfully set\n", path)
 	return nil
 }

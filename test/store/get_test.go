@@ -1,8 +1,8 @@
 package store
 
 import (
-	actions2 "github.com/jhight/firestore-cli/pkg/api/actions"
-	"github.com/jhight/firestore-cli/pkg/api/store"
+	"github.com/jhight/firestore-cli/pkg/api/actions"
+	"github.com/jhight/firestore-cli/pkg/api/client"
 	"github.com/jhight/firestore-cli/pkg/config"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
@@ -11,10 +11,10 @@ import (
 
 func TestGetAction(t *testing.T) {
 	gc := gomock.NewController(t)
-	mockStore := store.NewMockStore(gc)
+	mockStore := client.NewMockStore(gc)
 
-	root := actions2.Root(actions2.DefaultsInitializer(config.Config{}, mockStore))
-	root.Add(actions2.Get(root))
+	root := actions.Root(actions.DefaultsInitializer(config.Config{}, mockStore))
+	root.Add(actions.Get(root))
 	root.SetArgs([]string{"get", "example-collection", "example-document"})
 
 	example := map[string]any{
