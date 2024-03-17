@@ -15,10 +15,11 @@ func Delete(root Action) Action {
 
 	a.command = &cobra.Command{
 		Use:   "delete <path> [<field>]",
-		Short: "Delete a collection or document by ID",
-		Long:  "Delete a Firestore collection or document in a collection by its ID.",
+		Short: "Delete a collection, document, or field",
+		Long:  "Delete a Firestore collection, document, or field.",
 		Example: strings.ReplaceAll(`%E delete users/1234
-%E delete users`, "%E", os.Args[0]),
+%E delete users
+%E delete users/1234 field_to_remove`, "%E", os.Args[0]),
 		Args:    cobra.MinimumNArgs(1),
 		PreRunE: a.initializer.Initialize,
 		RunE:    a.runDelete,
