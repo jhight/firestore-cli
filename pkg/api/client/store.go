@@ -20,6 +20,7 @@ type Store interface {
 	Set(path string, fields map[string]any) error
 	Update(path string, fields map[string]any) error
 	Delete(path string) error
+	DeleteField(path string, field string) error
 	Close() error
 }
 

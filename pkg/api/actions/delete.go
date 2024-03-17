@@ -14,12 +14,12 @@ func Delete(root Action) Action {
 	}
 
 	a.command = &cobra.Command{
-		Use:   "delete <path>",
+		Use:   "delete <path> [<field>]",
 		Short: "Delete a collection or document by ID",
 		Long:  "Delete a Firestore collection or document in a collection by its ID.",
 		Example: strings.ReplaceAll(`%E delete users/1234
 %E delete users`, "%E", os.Args[0]),
-		Args:    cobra.ExactArgs(1),
+		Args:    cobra.MinimumNArgs(1),
 		PreRunE: a.initializer.Initialize,
 		RunE:    a.runDelete,
 	}
@@ -33,6 +33,11 @@ func (a *action) runDelete(_ *cobra.Command, args []string) error {
 	a.handleHelpFlag()
 
 	path := args[0]
+
+	field := ""
+	if len(args) > 1 {
+		field = args[1]
+	}
 
 	// if the path is a collection, confirm the deletion
 	components := strings.Split(path, "/")
@@ -51,11 +56,19 @@ func (a *action) runDelete(_ *cobra.Command, args []string) error {
 		a.backup(path, before, nil)
 	}
 
-	err := a.initializer.Firestore().Delete(path)
-	if err != nil {
-		return err
+	if len(field) > 0 {
+		err := a.initializer.Firestore().DeleteField(path, field)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("%s %s successfully deleted\n", path, field)
+	} else {
+		err := a.initializer.Firestore().Delete(path)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("%s successfully deleted\n", path)
 	}
 
-	fmt.Printf("%s successfully deleted\n", path)
 	return nil
 }

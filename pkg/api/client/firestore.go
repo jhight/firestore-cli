@@ -41,6 +41,10 @@ func (f *firestoreClientManager) Delete(path string) error {
 	return remove(f.ctx, f.client, path)
 }
 
+func (f *firestoreClientManager) DeleteField(path string, field string) error {
+	return removeField(f.ctx, f.client, path, field)
+}
+
 func (f *firestoreClientManager) Close() error {
 	return f.client.Close()
 }

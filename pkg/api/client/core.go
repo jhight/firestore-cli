@@ -110,6 +110,20 @@ func remove(ctx context.Context, client *firestore.Client, path string) error {
 	return fmt.Errorf("invalid path format, %s", path)
 }
 
+func removeField(ctx context.Context, client *firestore.Client, documentPath string, fieldPath string) error {
+	dr := client.Doc(documentPath)
+	if dr == nil {
+		return fmt.Errorf("invalid document path, %s", documentPath)
+	}
+
+	updates := []firestore.Update{{Path: fieldPath, Value: firestore.Delete}}
+	if _, err := dr.Update(ctx, updates); err != nil {
+		return fmt.Errorf("error deleting field, %s", err)
+	}
+
+	return nil
+}
+
 func removeCollection(ctx context.Context, client *firestore.Client, cr *firestore.CollectionRef) error {
 	if cr == nil {
 		return fmt.Errorf("invalid collection reference, %s", cr.Path)
