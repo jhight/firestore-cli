@@ -190,6 +190,44 @@ func (c *MockStoreDeleteCall) DoAndReturn(f func(string) error) *MockStoreDelete
 	return c
 }
 
+// DeleteField mocks base method.
+func (m *MockStore) DeleteField(path, field string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteField", path, field)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteField indicates an expected call of DeleteField.
+func (mr *MockStoreMockRecorder) DeleteField(path, field any) *MockStoreDeleteFieldCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteField", reflect.TypeOf((*MockStore)(nil).DeleteField), path, field)
+	return &MockStoreDeleteFieldCall{Call: call}
+}
+
+// MockStoreDeleteFieldCall wrap *gomock.Call
+type MockStoreDeleteFieldCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockStoreDeleteFieldCall) Return(arg0 error) *MockStoreDeleteFieldCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockStoreDeleteFieldCall) Do(f func(string, string) error) *MockStoreDeleteFieldCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockStoreDeleteFieldCall) DoAndReturn(f func(string, string) error) *MockStoreDeleteFieldCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // Get mocks base method.
 func (m *MockStore) Get(path string) (map[string]any, error) {
 	m.ctrl.T.Helper()
