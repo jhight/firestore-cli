@@ -2,39 +2,29 @@ package client
 
 import (
 	"cloud.google.com/go/firestore"
-	"encoding/json"
 	"fmt"
+	"github.com/jhight/firestore-cli/pkg/api/client/query"
 )
 
-func (f *firestoreClientManager) Query(input SelectionInput, filter string) ([]map[string]any, error) {
+func (f *firestoreClientManager) Query(input query.Input) ([]map[string]any, error) {
 	var q firestore.Query
 
-	if len(filter) == 0 {
-		// if no filter is provided, return all documents
-		q = f.client.Collection(input.CollectionPath).Offset(input.Offset)
+	if len(input.Filter) == 0 {
+		q = f.client.Collection(input.Path).Offset(input.Offset)
 	} else {
-		// parse the filter and create a query
-		var body map[string]any
-		err := json.Unmarshal([]byte(filter), &body)
-		if err != nil {
-			return nil, fmt.Errorf("query parse failure, %s; see help for more information on query syntax", err)
-		}
-
-		root, err := createRootExpression(body)
+		root, err := query.CreateExpression(input.Filter)
 		if err != nil {
 			return nil, err
 		}
 
-		parse(root)
-
 		q = f.client.
-			Collection(input.CollectionPath).
-			WhereEntity(root.toEntityFilter())
+			Collection(input.Path).
+			WhereEntity(root.FirestoreFilter())
 	}
 
 	if len(input.OrderBy) > 0 {
 		for _, o := range input.OrderBy {
-			q = q.OrderBy(o.Field, o.Direction.toFirestoreDirection())
+			q = q.OrderBy(o.Field, o.Direction.FirestoreDirection())
 		}
 	}
 
@@ -50,11 +40,12 @@ func (f *firestoreClientManager) Query(input SelectionInput, filter string) ([]m
 
 	documents := make([]map[string]any, 0)
 	for _, d := range ds {
-		var t map[string]any
-		if err = d.DataTo(&t); err != nil {
-			return nil, fmt.Errorf("error decoding document, %s", err)
+		if len(input.Fields) == 0 {
+			documents = append(documents, d.Data())
+		} else {
+			projection := f.projection(d, input.Fields)
+			documents = append(documents, projection)
 		}
-		documents = append(documents, t)
 	}
 
 	return documents, nil

@@ -1,4 +1,4 @@
-package store
+package client
 
 import (
 	"github.com/jhight/firestore-cli/pkg/api/actions"

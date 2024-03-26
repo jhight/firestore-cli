@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/api/iterator"
+	"strings"
 )
 
 func count(ctx context.Context, client *firestore.Client, collectionPath string) int {
@@ -33,24 +34,6 @@ func create[T any](ctx context.Context, client *firestore.Client, documentPath s
 
 	if _, err := dr.Create(ctx, data); err != nil {
 		return fmt.Errorf("error creating document, %s", err)
-	}
-
-	return nil
-}
-
-func get[T any](ctx context.Context, client *firestore.Client, documentPath string, value *T) error {
-	dr := client.Doc(documentPath)
-	if dr == nil {
-		return fmt.Errorf("invalid document path, %s", documentPath)
-	}
-
-	ds, err := dr.Get(ctx)
-	if err != nil {
-		return fmt.Errorf("error getting document, %s", err)
-	}
-
-	if err = ds.DataTo(value); err != nil {
-		return fmt.Errorf("error decoding document, %s", err)
 	}
 
 	return nil
@@ -182,8 +165,15 @@ func removeDocument(ctx context.Context, client *firestore.Client, dr *firestore
 	return nil
 }
 
-func collections(ctx context.Context, client *firestore.Client) []any {
-	iter := client.Collections(ctx)
+func collections(ctx context.Context, client *firestore.Client, documentPath string) []any {
+	var iter *firestore.CollectionIterator
+
+	if len(documentPath) > 0 {
+		iter = client.Doc(documentPath).Collections(ctx)
+	} else {
+		iter = client.Collections(ctx)
+	}
+
 	c := make([]any, 0)
 	for {
 		collection, err := iter.Next()
@@ -193,4 +183,30 @@ func collections(ctx context.Context, client *firestore.Client) []any {
 		c = append(c, collection.ID)
 	}
 	return c
+}
+
+func fieldValue(document map[string]any, path string) (any, bool) {
+	fields := strings.Split(path, ".")
+	return walkDocument(document, fields)
+}
+
+func walkDocument(document map[string]any, fields []string) (any, bool) {
+	if len(fields) == 0 {
+		return nil, false
+	}
+
+	value, ok := document[fields[0]]
+	if !ok {
+		return nil, false
+	}
+
+	if len(fields) == 1 {
+		return value, true
+	}
+
+	if nested, ok := value.(map[string]any); ok {
+		return walkDocument(nested, fields[1:])
+	}
+
+	return nil, false
 }

@@ -42,33 +42,49 @@ func (a *action) Command() *cobra.Command {
 	return a.command
 }
 
-func (a *action) nestedField(document map[string]any, fields []string) (any, bool) {
-	if len(fields) == 0 {
-		return nil, false
-	}
-
-	value, ok := document[fields[0]]
-	if !ok {
-		return nil, false
-	}
-
-	if len(fields) == 1 {
-		return value, true
-	}
-
-	if nested, ok := value.(map[string]any); ok {
-		return a.nestedField(nested, fields[1:])
-	}
-
-	return nil, false
-}
-
 func (a *action) printOutput(value any) {
 	switch value.(type) {
-	case map[string]any, []any, []map[string]any:
+	case []any:
+		values := make([]any, 0)
+		for _, v := range value.([]any) {
+			if v == nil {
+				continue
+			}
+			values = append(values, v)
+		}
+		json, err := a.toJSON(values)
+		if err != nil {
+			fmt.Printf("Error: %s\n", err)
+			return
+		}
+		if len(json) == 0 || json == "[]" {
+			return
+		}
+		fmt.Println(json)
+	case []map[string]any:
+		values := make([]map[string]any, 0)
+		for _, v := range value.([]map[string]any) {
+			if len(v) == 0 {
+				continue
+			}
+			values = append(values, v)
+		}
+		json, err := a.toJSON(values)
+		if err != nil {
+			fmt.Printf("Error: %s\n", err)
+			return
+		}
+		if len(json) == 0 || json == "[]" {
+			return
+		}
+		fmt.Println(json)
+	case map[string]any:
 		json, err := a.toJSON(value)
 		if err != nil {
 			fmt.Printf("Error: %s\n", err)
+			return
+		}
+		if len(json) == 0 || json == "{}" {
 			return
 		}
 		fmt.Println(json)

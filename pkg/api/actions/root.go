@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"os"
 	"strings"
@@ -17,6 +18,10 @@ const (
 	flagPrettyPrint    = "pretty"
 	flagRawPrint       = "raw"
 	flagSpacing        = "spacing"
+	flagOrderBy        = "order"
+	flagLimit          = "limit"
+	flagOffset         = "offset"
+	flagCount          = "count"
 )
 
 func Root(i Initializer) Action {
@@ -29,10 +34,38 @@ func Root(i Initializer) Action {
 	}
 
 	root.command = &cobra.Command{
-		Use:     os.Args[0],
-		Short:   "A Firebase Firestore command line utility",
-		Long:    "A command line utility for Firebase Firestore, allowing querying and CRUD operations on collections and documents.",
-		Example: strings.ReplaceAll(`%E get accounts account-1234`, "%E", os.Args[0]),
+		Use:   os.Args[0],
+		Short: "A Firebase Firestore command line utility",
+		Long:  fmt.Sprintf("A command line utility for Firebase Firestore, allowing querying and CRUD operations on collections and documents. For more information, use help on a specific command. For example, %s get --help", os.Args[0]),
+		Example: strings.ReplaceAll(`- list collections
+	%E collections
+
+- get a single document by ID
+    %E get users/user-1234
+
+- list document subcollections
+	%E collections users/user-1234
+
+- get specific fields
+	%E get users/user-1234 name,age
+
+- get nested fields
+	%E get users/user-1234 address.city
+
+- query for data using a filter expression (see %E get --help for information on query syntax)
+	%E get users --filter '{"$and":{"name":"John", "age":{">":30}}}'
+
+- create a new document
+	%E create users '{"id":1234,"name":"John","age":30}'
+
+- update a document (only specified fields are updated)
+	%E update users/user-1234 '{"age":30}'
+
+- set a document (replaces existing document)
+	%E set users/user-1234 '{"id":1234,"name":"John","age":30}'
+
+- delete document
+	%E delete users/user-1234`, "%E", os.Args[0]),
 		PreRunE: i.Initialize,
 		RunE:    root.run,
 	}

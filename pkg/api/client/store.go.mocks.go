@@ -12,6 +12,7 @@ package client
 import (
 	reflect "reflect"
 
+	query "github.com/jhight/firestore-cli/pkg/api/client/query"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -76,40 +77,41 @@ func (c *MockStoreCloseCall) DoAndReturn(f func() error) *MockStoreCloseCall {
 	return c
 }
 
-// Count mocks base method.
-func (m *MockStore) Count(collection string) int {
+// Collections mocks base method.
+func (m *MockStore) Collections(input query.Input) ([]any, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Count", collection)
-	ret0, _ := ret[0].(int)
-	return ret0
+	ret := m.ctrl.Call(m, "Collections", input)
+	ret0, _ := ret[0].([]any)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-// Count indicates an expected call of Count.
-func (mr *MockStoreMockRecorder) Count(collection any) *MockStoreCountCall {
+// Collections indicates an expected call of Collections.
+func (mr *MockStoreMockRecorder) Collections(input any) *MockStoreCollectionsCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Count", reflect.TypeOf((*MockStore)(nil).Count), collection)
-	return &MockStoreCountCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Collections", reflect.TypeOf((*MockStore)(nil).Collections), input)
+	return &MockStoreCollectionsCall{Call: call}
 }
 
-// MockStoreCountCall wrap *gomock.Call
-type MockStoreCountCall struct {
+// MockStoreCollectionsCall wrap *gomock.Call
+type MockStoreCollectionsCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockStoreCountCall) Return(arg0 int) *MockStoreCountCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockStoreCollectionsCall) Return(arg0 []any, arg1 error) *MockStoreCollectionsCall {
+	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockStoreCountCall) Do(f func(string) int) *MockStoreCountCall {
+func (c *MockStoreCollectionsCall) Do(f func(query.Input) ([]any, error)) *MockStoreCollectionsCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockStoreCountCall) DoAndReturn(f func(string) int) *MockStoreCountCall {
+func (c *MockStoreCollectionsCall) DoAndReturn(f func(query.Input) ([]any, error)) *MockStoreCollectionsCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -229,18 +231,18 @@ func (c *MockStoreDeleteFieldCall) DoAndReturn(f func(string, string) error) *Mo
 }
 
 // Get mocks base method.
-func (m *MockStore) Get(path string) (map[string]any, error) {
+func (m *MockStore) Get(input query.Input) (map[string]any, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", path)
+	ret := m.ctrl.Call(m, "Get", input)
 	ret0, _ := ret[0].(map[string]any)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockStoreMockRecorder) Get(path any) *MockStoreGetCall {
+func (mr *MockStoreMockRecorder) Get(input any) *MockStoreGetCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockStore)(nil).Get), path)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockStore)(nil).Get), input)
 	return &MockStoreGetCall{Call: call}
 }
 
@@ -256,69 +258,106 @@ func (c *MockStoreGetCall) Return(arg0 map[string]any, arg1 error) *MockStoreGet
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockStoreGetCall) Do(f func(string) (map[string]any, error)) *MockStoreGetCall {
+func (c *MockStoreGetCall) Do(f func(query.Input) (map[string]any, error)) *MockStoreGetCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockStoreGetCall) DoAndReturn(f func(string) (map[string]any, error)) *MockStoreGetCall {
+func (c *MockStoreGetCall) DoAndReturn(f func(query.Input) (map[string]any, error)) *MockStoreGetCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
-// List mocks base method.
-func (m *MockStore) List(input SelectionInput, fieldPath string) ([]any, error) {
+// IsPathToCollection mocks base method.
+func (m *MockStore) IsPathToCollection(path string) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", input, fieldPath)
-	ret0, _ := ret[0].([]any)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "IsPathToCollection", path)
+	ret0, _ := ret[0].(bool)
+	return ret0
 }
 
-// List indicates an expected call of List.
-func (mr *MockStoreMockRecorder) List(input, fieldPath any) *MockStoreListCall {
+// IsPathToCollection indicates an expected call of IsPathToCollection.
+func (mr *MockStoreMockRecorder) IsPathToCollection(path any) *MockStoreIsPathToCollectionCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockStore)(nil).List), input, fieldPath)
-	return &MockStoreListCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsPathToCollection", reflect.TypeOf((*MockStore)(nil).IsPathToCollection), path)
+	return &MockStoreIsPathToCollectionCall{Call: call}
 }
 
-// MockStoreListCall wrap *gomock.Call
-type MockStoreListCall struct {
+// MockStoreIsPathToCollectionCall wrap *gomock.Call
+type MockStoreIsPathToCollectionCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockStoreListCall) Return(arg0 []any, arg1 error) *MockStoreListCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockStoreIsPathToCollectionCall) Return(arg0 bool) *MockStoreIsPathToCollectionCall {
+	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockStoreListCall) Do(f func(SelectionInput, string) ([]any, error)) *MockStoreListCall {
+func (c *MockStoreIsPathToCollectionCall) Do(f func(string) bool) *MockStoreIsPathToCollectionCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockStoreListCall) DoAndReturn(f func(SelectionInput, string) ([]any, error)) *MockStoreListCall {
+func (c *MockStoreIsPathToCollectionCall) DoAndReturn(f func(string) bool) *MockStoreIsPathToCollectionCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// IsPathToDocument mocks base method.
+func (m *MockStore) IsPathToDocument(path string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsPathToDocument", path)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsPathToDocument indicates an expected call of IsPathToDocument.
+func (mr *MockStoreMockRecorder) IsPathToDocument(path any) *MockStoreIsPathToDocumentCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsPathToDocument", reflect.TypeOf((*MockStore)(nil).IsPathToDocument), path)
+	return &MockStoreIsPathToDocumentCall{Call: call}
+}
+
+// MockStoreIsPathToDocumentCall wrap *gomock.Call
+type MockStoreIsPathToDocumentCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockStoreIsPathToDocumentCall) Return(arg0 bool) *MockStoreIsPathToDocumentCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockStoreIsPathToDocumentCall) Do(f func(string) bool) *MockStoreIsPathToDocumentCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockStoreIsPathToDocumentCall) DoAndReturn(f func(string) bool) *MockStoreIsPathToDocumentCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // Query mocks base method.
-func (m *MockStore) Query(input SelectionInput, filter string) ([]map[string]any, error) {
+func (m *MockStore) Query(input query.Input) ([]map[string]any, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Query", input, filter)
+	ret := m.ctrl.Call(m, "Query", input)
 	ret0, _ := ret[0].([]map[string]any)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Query indicates an expected call of Query.
-func (mr *MockStoreMockRecorder) Query(input, filter any) *MockStoreQueryCall {
+func (mr *MockStoreMockRecorder) Query(input any) *MockStoreQueryCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Query", reflect.TypeOf((*MockStore)(nil).Query), input, filter)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Query", reflect.TypeOf((*MockStore)(nil).Query), input)
 	return &MockStoreQueryCall{Call: call}
 }
 
@@ -334,13 +373,13 @@ func (c *MockStoreQueryCall) Return(arg0 []map[string]any, arg1 error) *MockStor
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockStoreQueryCall) Do(f func(SelectionInput, string) ([]map[string]any, error)) *MockStoreQueryCall {
+func (c *MockStoreQueryCall) Do(f func(query.Input) ([]map[string]any, error)) *MockStoreQueryCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockStoreQueryCall) DoAndReturn(f func(SelectionInput, string) ([]map[string]any, error)) *MockStoreQueryCall {
+func (c *MockStoreQueryCall) DoAndReturn(f func(query.Input) ([]map[string]any, error)) *MockStoreQueryCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

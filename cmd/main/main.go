@@ -9,14 +9,12 @@ func main() {
 	root := actions.Root(nil)
 
 	root.Add(
+		actions.Collections(root),
 		actions.Get(root),
-		actions.Count(root),
-		actions.Create(root),
 		actions.Update(root),
 		actions.Set(root),
+		actions.Create(root),
 		actions.Delete(root),
-		actions.Query(root),
-		actions.List(root),
 	)
 
 	err := root.Execute()

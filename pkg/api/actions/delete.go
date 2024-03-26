@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"github.com/jhight/firestore-cli/pkg/api/client/query"
 	"github.com/spf13/cobra"
 	"os"
 	"slices"
@@ -53,7 +54,7 @@ func (a *action) runDelete(_ *cobra.Command, args []string) error {
 	}
 
 	if slices.Contains(a.initializer.Config().Backup.Commands, "delete") {
-		before, _ := a.initializer.Firestore().Get(path)
+		before, _ := a.initializer.Firestore().Get(query.Input{Path: path})
 		a.backup(path, before, nil)
 	}
 

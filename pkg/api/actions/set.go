@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/jhight/firestore-cli/pkg/api/client/query"
 	"github.com/spf13/cobra"
 	"os"
 	"slices"
@@ -61,12 +62,12 @@ func (a *action) runSet(_ *cobra.Command, args []string) error {
 
 	// backup before update, if configured
 	if slices.Contains(a.initializer.Config().Backup.Commands, "update") {
-		before, _ := a.initializer.Firestore().Get(path)
+		before, _ := a.initializer.Firestore().Get(query.Input{Path: path})
 		err = a.initializer.Firestore().Set(path, fields)
 		if err != nil {
 			return err
 		}
-		after, _ := a.initializer.Firestore().Get(path)
+		after, _ := a.initializer.Firestore().Get(query.Input{Path: path})
 		a.backup(path, before, after)
 	} else {
 		err = a.initializer.Firestore().Set(path, fields)
