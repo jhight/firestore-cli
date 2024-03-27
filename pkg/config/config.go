@@ -7,6 +7,7 @@ type Config struct {
 	RawPrint       bool         `yaml:"raw"`
 	PrettySpacing  int          `yaml:"spacing"`
 	Backup         BackupConfig `yaml:"backup"`
+	Flatten        bool         `yaml:"flatten"`
 }
 
 type BackupConfig struct {

@@ -18,10 +18,7 @@ const (
 	flagPrettyPrint    = "pretty"
 	flagRawPrint       = "raw"
 	flagSpacing        = "spacing"
-	flagOrderBy        = "order"
-	flagLimit          = "limit"
-	flagOffset         = "offset"
-	flagCount          = "count"
+	flagFlatten        = "flatten"
 )
 
 func Root(i Initializer) Action {
@@ -77,6 +74,7 @@ func Root(i Initializer) Action {
 	root.command.PersistentFlags().Bool(flagPrettyPrint, true, "Pretty print JSON output")
 	root.command.PersistentFlags().Bool(flagRawPrint, false, "Raw print JSON output (disables pretty print)")
 	root.command.PersistentFlags().Int(flagSpacing, defaultSpacing, "The number of spaces to use for pretty printing JSON output")
+	root.command.PersistentFlags().Bool(flagFlatten, false, "Flatten output to an array of values, if more than one result (only valid when selecting a single field). If only a single result, the raw value itself is printed.")
 
 	return root
 }

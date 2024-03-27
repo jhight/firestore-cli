@@ -6,6 +6,7 @@ import (
 	"github.com/jhight/firestore-cli/pkg/api/client/query"
 	"github.com/spf13/cobra"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -13,7 +14,10 @@ import (
 const (
 	flagFilter  = "filter"
 	flagWhere   = "where"
-	flagFlatten = "flatten"
+	flagOrderBy = "order"
+	flagLimit   = "limit"
+	flagOffset  = "offset"
+	flagCount   = "count"
 )
 
 func Get(root Action) Action {
@@ -25,7 +29,7 @@ func Get(root Action) Action {
 		Use:     "get <path> [<fields>]",
 		Aliases: []string{"g"},
 		Short:   "Get data from a collection or document",
-		Long:    "Get data from a Firestore collection or document by ID or by applying a filter. See examples below for more information about query JSON syntax.",
+		Long:    "Get data from a Firestore collection or document by ID or by applying a filter. See examples below (or README) for more information about query JSON syntax.",
 		Args:    cobra.MinimumNArgs(1),
 		Example: strings.ReplaceAll(`- get a document by ID
 	%E get users/user-1234
@@ -75,8 +79,7 @@ func Get(root Action) Action {
 	a.command.Flags().StringP(flagOrderBy, "o", "", "Order by expression, including field and direction (asc or desc). See examples above.")
 	a.command.Flags().IntP(flagLimit, "l", 0, "Limit integer value.")
 	a.command.Flags().Int(flagOffset, 0, "Offset integer value.")
-	a.command.Flags().BoolP(flagCount, "c", false, "Return only the count of documents matching query.")
-	a.command.Flags().Bool(flagFlatten, false, "Flatten output to an array of values, if more than one result (only valid when selecting a single field). If only a single result, the value itself is printed.")
+	a.command.Flags().Bool(flagCount, false, "Return only the count of documents matching query.")
 
 	return a
 }
@@ -161,27 +164,38 @@ func (a *action) runGet(_ *cobra.Command, args []string) error {
 		input.Count = true
 	}
 
+	var err error
 	if a.initializer.Firestore().IsPathToCollection(path) {
-		docs, err := a.initializer.Firestore().Query(input)
-		if err != nil {
-			return err
-		}
+		var docs []map[string]any
+		docs, err = a.initializer.Firestore().Query(input)
 		a.handleOutput(docs, fields)
 	} else if a.initializer.Firestore().IsPathToDocument(path) {
-		doc, err := a.initializer.Firestore().Get(input)
-		if err != nil {
-			return err
-		}
+		var doc map[string]any
+		doc, err = a.initializer.Firestore().Get(input)
 		a.handleOutput([]map[string]any{doc}, fields)
 	}
 
-	return nil
+	if err != nil && strings.Contains(fmt.Sprintf("%s", err), "The query requires an index. You can create it here") {
+		re := regexp.MustCompile("^.*?(https://.*?)$")
+		matches := re.FindStringSubmatch(fmt.Sprintf("%s", err))
+		if len(matches) > 1 {
+			a.printOutput("Requires index to be created: " + matches[1])
+			return nil
+		}
+		return err
+	}
+
+	return err
 }
 
 func (a *action) handleOutput(docs []map[string]any, fields []string) {
 	if a.command.Flag(flagCount).Value.String() == "true" {
-		a.printOutput(map[string]any{"$count": len(docs)})
-	} else if a.command.Flag(flagFlatten).Value.String() == "true" && len(fields) == 1 {
+		if a.initializer.Config().Flatten {
+			a.printOutput(len(docs))
+		} else {
+			a.printOutput(map[string]any{"$count": len(docs)})
+		}
+	} else if a.initializer.Config().Flatten && len(fields) == 1 {
 		flattened := make([]any, 0)
 		for _, doc := range docs {
 			for _, v := range doc {

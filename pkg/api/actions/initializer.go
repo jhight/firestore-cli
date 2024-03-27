@@ -89,6 +89,9 @@ func (i *initializer) loadConfig(cmd *cobra.Command) (config.Config, error) {
 		amt, _ := strconv.Atoi(cmd.Flag(flagSpacing).Value.String())
 		i.cfg.PrettySpacing = amt
 	}
+	if cmd.Flag(flagFlatten).Changed && len(cmd.Flag(flagFlatten).Value.String()) > 0 {
+		i.cfg.Flatten = cmd.Flag(flagFlatten).Value.String() == "true"
+	}
 
 	// make sure required fields are set
 	if len(i.cfg.ServiceAccount) == 0 {
