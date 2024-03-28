@@ -17,8 +17,7 @@ func main() {
 		actions.Delete(root),
 	)
 
-	err := root.Execute()
-	if err != nil {
+	if err := root.Execute(); err != nil {
 		os.Exit(1)
 	}
 }

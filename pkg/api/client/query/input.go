@@ -9,3 +9,8 @@ type Input struct {
 	Offset  int
 	Count   bool
 }
+
+type OrderBy struct {
+	Field     string
+	Direction Direction
+}

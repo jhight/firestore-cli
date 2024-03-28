@@ -79,7 +79,11 @@ func (a *action) runCollections(_ *cobra.Command, args []string) error {
 	}
 
 	if a.command.Flag(flagCount).Value.String() == "true" {
-		a.printOutput(map[string]any{"$count": len(collections)})
+		if a.initializer.Config().Flatten {
+			a.printOutput(len(collections))
+		} else {
+			a.printOutput(map[string]any{"$count": len(collections)})
+		}
 	} else {
 		a.printOutput(collections)
 	}

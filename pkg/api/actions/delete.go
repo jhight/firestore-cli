@@ -59,15 +59,14 @@ func (a *action) runDelete(_ *cobra.Command, args []string) error {
 	}
 
 	if len(field) > 0 {
-		err := a.initializer.Firestore().DeleteField(path, field)
-		if err != nil {
+		if err := a.initializer.Firestore().DeleteField(path, field); err != nil {
 			return err
 		}
 		fmt.Printf("%s %s successfully deleted\n", path, field)
 	} else {
-		err := a.initializer.Firestore().Delete(path)
-		if err != nil {
+		if err := a.initializer.Firestore().Delete(path); err != nil {
 			return err
+
 		}
 		fmt.Printf("%s successfully deleted\n", path)
 	}

@@ -49,15 +49,13 @@ func (a *action) runCreate(_ *cobra.Command, args []string) error {
 	}
 
 	var u any
-	err := json.Unmarshal([]byte(jsonValue), &u)
-	if err != nil {
+	if err := json.Unmarshal([]byte(jsonValue), &u); err != nil {
 		return err
 	}
 
 	switch u.(type) {
 	case map[string]any:
-		err = a.initializer.Firestore().Create(path, u.(map[string]any))
-		if err != nil {
+		if err := a.initializer.Firestore().Create(path, u.(map[string]any)); err != nil {
 			return err
 		}
 	default:

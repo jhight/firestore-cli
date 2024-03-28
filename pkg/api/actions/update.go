@@ -44,8 +44,7 @@ func (a *action) runUpdate(_ *cobra.Command, args []string) error {
 		input = args[1]
 	} else if a.shouldReadFromStdin() {
 		var err error
-		input, err = a.readFromStdin()
-		if err != nil {
+		if input, err = a.readFromStdin(); err != nil {
 			return err
 		}
 	}
@@ -63,15 +62,13 @@ func (a *action) runUpdate(_ *cobra.Command, args []string) error {
 	// backup before update, if configured
 	if slices.Contains(a.initializer.Config().Backup.Commands, "update") {
 		before, _ := a.initializer.Firestore().Get(query.Input{Path: path})
-		err = a.initializer.Firestore().Update(path, fields)
-		if err != nil {
+		if err = a.initializer.Firestore().Update(path, fields); err != nil {
 			return err
 		}
 		after, _ := a.initializer.Firestore().Get(query.Input{Path: path})
 		a.backup(path, before, after)
 	} else {
-		err = a.initializer.Firestore().Update(path, fields)
-		if err != nil {
+		if err = a.initializer.Firestore().Update(path, fields); err != nil {
 			return err
 		}
 	}

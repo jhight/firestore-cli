@@ -38,13 +38,12 @@ func (i *initializer) Initialize(cmd *cobra.Command, _ []string) error {
 	}
 
 	var err error
-	i.cfg, err = i.loadConfig(cmd)
-	if err != nil {
+
+	if i.cfg, err = i.loadConfig(cmd); err != nil {
 		return err
 	}
 
-	i.firestore, err = client.New(context.Background(), i.cfg)
-	if err != nil {
+	if i.firestore, err = client.New(context.Background(), i.cfg); err != nil {
 		return err
 	}
 
