@@ -19,7 +19,7 @@ func Create(root Action) Action {
 		Aliases: []string{"insert"},
 		Short:   "Create a document",
 		Long:    "Create a Firestore document with the specified ID using the specified field(s). If a document exists with the same ID, it will be replaced.",
-		Example: strings.ReplaceAll(`%E set users/1234 '{"name": "John Doe", "age": 30, "height": 5.9, "active": true}'
+		Example: strings.ReplaceAll(`%E create users/1234 '{"name": "John Doe", "age": 30, "height": 5.9, "active": true}'
 %E create users/1234/orders/5678 '{"item": "shoes", "quantity": 1, "price": 100.00}'
 cat file.json | %E create users 1234`, "%E", os.Args[0]),
 		Args:    cobra.MinimumNArgs(1),

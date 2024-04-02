@@ -38,34 +38,34 @@ func Get(root Action) Action {
 	%E get users/user-1234 name,age
 
 - query for data using a filter expression
-    %E get users '{"id":{"==":1234}}'
+    %E get users --filter '{"id":{"==":1234}}'
 
 - shorter, also gets all users with id 1234 ("==" is the default field operator)
-    %E get users '{"id":1234}'
+    %E get users --filter '{"id":1234}'
 
 - same as above, ordered by age descending then name ascending, and limited to 10
-    %E get users '{"id":1234}' --order age:desc,name:asc --limit 10
+    %E get users --filter '{"id":1234}' --order age:desc,name:asc --limit 10
 
 - get all orders by user 1234 over $100 (orders is a subcollection of users)
-	%E get users/1234/orders '{"price":{">":100}}'
+	%E get users/1234/orders --filter '{"price":{">":100}}'
 
 - get all users with id 1234 and age > 30
-    %E get users '{"$and":{"id":1234,"age":{">":30}}}'
+    %E get users --filter '{"$and":{"id":1234,"age":{">":30}}}'
 
 - shorter, also gets all users with id 1234 and age > 30 ("$and" is the default composite operator)
-    %E get users '{"id":1234,"age":{">":30}}'
+    %E get users --filter '{"id":1234,"age":{">":30}}'
 
 - complex filter: a = "abc" and b > 30 and (c = true or (d <= 25 and e != "def"))
-    %E get users '{"$and":{"a":"abc","b":{">":30},"$or":{"c":true,"$and":{"d":{"<=":25},"e":{"!=":"def"}}}}'
+    %E get users --filter '{"$and":{"a":"abc","b":{">":30},"$or":{"c":true,"$and":{"d":{"<=":25},"e":{"!=":"def"}}}}'
 
 - shorter version of the above, without explicit outer $and composite operator
-    %E get users '{"a":"abc","b":{">":30},"$or":{"c":true,"$and":{"d":{"<=":25},"e":{"!=":"def"}}}}'
+    %E get users --filter '{"a":"abc","b":{">":30},"$or":{"c":true,"$and":{"d":{"<=":25},"e":{"!=":"def"}}}}'
 
 - get all users where address city is one of: "New York", "Los Angeles", or "Chicago"
-	%E get users '{"address.city":{"$in":["New York","Los Angeles","Chicago"]}}'
+	%E get users --filter '{"address.city":{"$in":["New York","Los Angeles","Chicago"]}}'
 
 - get the count of all users with address.city of "New York"
-    %E get users '{"address.city":"New York"}' --count
+    %E get users --filter '{"address.city":"New York"}' --count
 
 - get all the id of all users, ordered by name and limited to 10
     %E get users --order name --limit 10`, "%E", os.Args[0]),
