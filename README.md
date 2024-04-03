@@ -213,7 +213,7 @@ firestore update users/user-1234 '{"age": 31}'
 firestore update users/user-1234/projects/project-5678 '{"active": false, "endDate": "2023-12-31"}'
 ```
 
-### Deleting a collection, document, or field
+## Deleting data
 ```bash
 # note: see firestore delete --help for a lot more information
 firestore delete <path> [<field1>,<field2>,...]
@@ -221,7 +221,7 @@ firestore delete <path> [<field1>,<field2>,...]
 
 If `<path>` is a collection or subcollection path, Firestore CLI will prompt you to confirm before deleting the collection and all its documents. If one or more fields are specified, only those fields will be deleted from the document.
 
-#### Examples
+### Examples
 ```bash
 # delete a collection and all its documents (this will prompt you to confirm)
 firestore delete users
