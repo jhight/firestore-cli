@@ -38,7 +38,7 @@ func Root(i Initializer) Action {
 	%E collections
 
 - get a single document by ID
-    %E get users/user-1234
+	%E get users/user-1234
 
 - list document subcollections
 	%E collections users/user-1234
