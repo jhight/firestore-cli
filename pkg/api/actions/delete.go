@@ -36,9 +36,9 @@ func (a *action) runDelete(_ *cobra.Command, args []string) error {
 
 	path := args[0]
 
-	field := ""
+	fields := make([]string, 0)
 	if len(args) > 1 {
-		field = args[1]
+		fields = strings.Split(args[1], ",")
 	}
 
 	// if the path is a collection, confirm the deletion
@@ -58,17 +58,20 @@ func (a *action) runDelete(_ *cobra.Command, args []string) error {
 		a.backup(path, before, nil)
 	}
 
-	if len(field) > 0 {
-		if err := a.initializer.Firestore().DeleteField(path, field); err != nil {
-			return err
-		}
-		fmt.Printf("%s %s successfully deleted\n", path, field)
-	} else {
+	if len(fields) == 0 {
 		if err := a.initializer.Firestore().Delete(path); err != nil {
 			return err
 
 		}
 		fmt.Printf("%s successfully deleted\n", path)
+		return nil
+	}
+
+	for _, field := range fields {
+		if err := a.initializer.Firestore().DeleteField(path, field); err != nil {
+			return err
+		}
+		fmt.Printf("%s %s successfully deleted\n", path, field)
 	}
 
 	return nil
