@@ -98,14 +98,8 @@ firestore get users id,lastName,address --filter '{"address.city":"Chicago"}'
 
 Here are a few more command examples:
 ```bash
-# list collections
-firestore collections
-
 # list documents in a collection
 firestore get users
-
-# list subcollections of a document
-firestore collections users/user-1234
 
 # list document IDs in a collection
 firestore get users \$id
@@ -162,6 +156,20 @@ Made more readable, the filter JSON is:
 The `$and` and `$or` keys are logical operators. You can probably see that this translates into the following SQL pseudo-code:
 ```sql
 ... WHERE (firstName = "John" AND lastName = "Doe") OR age >= 30
+```
+## Listing collections
+```bash
+# note: see firestore collections --help for a lot more information
+firestore collections [<path>]
+```
+
+### Examples
+```bash
+# list all collections
+firestore collections
+
+# list subcollections in a document
+firestore collections users/user-1234
 ```
 
 ## Creating documents
