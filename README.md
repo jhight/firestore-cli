@@ -80,7 +80,7 @@ firestore get users id,firstName,lastName --filter '{"lastName":"Doe"}'
 Filtering on nested properties:
 ```bash
 # get users with a city of "Chicago"
-firestore firestore get users id,lastName,address --filter '{"address.city":"Chicago"}'
+firestore get users id,lastName,address --filter '{"address.city":"Chicago"}'
 
 # output:
 [
