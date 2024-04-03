@@ -168,11 +168,11 @@ func (a *action) runGet(_ *cobra.Command, args []string) error {
 	if a.initializer.Firestore().IsPathToCollection(path) {
 		var docs []map[string]any
 		docs, err = a.initializer.Firestore().Query(input)
-		a.handleOutput(docs, fields)
+		a.handleOutput(false, docs, fields)
 	} else if a.initializer.Firestore().IsPathToDocument(path) {
 		var doc map[string]any
 		doc, err = a.initializer.Firestore().Get(input)
-		a.handleOutput([]map[string]any{doc}, fields)
+		a.handleOutput(true, []map[string]any{doc}, fields)
 	}
 
 	if err != nil && strings.Contains(fmt.Sprintf("%s", err), "The query requires an index. You can create it here") {
@@ -188,13 +188,15 @@ func (a *action) runGet(_ *cobra.Command, args []string) error {
 	return err
 }
 
-func (a *action) handleOutput(docs []map[string]any, fields []string) {
+func (a *action) handleOutput(isDocument bool, docs []map[string]any, fields []string) {
 	if a.command.Flag(flagCount).Value.String() == "true" {
 		if a.initializer.Config().Flatten {
 			a.printOutput(len(docs))
 		} else {
 			a.printOutput(map[string]any{"$count": len(docs)})
 		}
+	} else if isDocument && len(docs) == 1 {
+		a.printOutput(docs[0])
 	} else if a.initializer.Config().Flatten && len(fields) == 1 {
 		flattened := make([]any, 0)
 		for _, doc := range docs {
