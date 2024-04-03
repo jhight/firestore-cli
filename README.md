@@ -1,8 +1,11 @@
-# firestore-cli
-Firestore CLI is a utility for querying, updating, and deleting Firestore data.
+<p align="center">
+    <img width="128" src="icon.png" align="center" alt="Stash" />
+    <h1 align="center">firestore-cli</h1>
+    <p align="center">A command-line utility for viewing and managing Firestore data.</p>
+    <p><br/></p>
+</p>
 
-## Usage
-### Getting documents
+## Getting documents
 Here are a few examples of how to retrieve data:
 ```bash
 # list collections
@@ -59,7 +62,7 @@ The `$and` and `$or` keys are logical operators. You can probably see that this 
 ... WHERE (firstName = "John" AND lastName = "Doe") OR age >= 30
 ```
 
-### Creating documents
+## Creating documents
 Here are a few examples of creating document:
 ```bash
 # create a document, specifying data manually
@@ -70,10 +73,10 @@ firestore create users/user-1234 <path/to/data.json
 ```
 Create will fail if the document already exists.
 
-### Modifying documents
+## Modifying documents
 Modifying documents comes in two forms: `set` and `update`. The `set` command will overwrite the entire document, while `update` will only update the fields you specify.
 
-#### Set (e.g., create or replace) a document
+### Set (e.g., create or replace) a document
 ```bash
 # set an entire document, specifying data manually
 firestore set users/user-1234 '{"name": "John Doe", "age": 30, "height": 5.9, "active": false}'
@@ -82,7 +85,7 @@ firestore set users/user-1234 '{"name": "John Doe", "age": 30, "height": 5.9, "a
 firestore set users/user-1234 <path/to/data.json
 ```
 
-#### Update a document
+### Update a document
 ```bash
 # update a single field in a document (others untouched)
 firestore update users/user-1234 '{"age": 31}'
@@ -91,7 +94,7 @@ firestore update users/user-1234 '{"age": 31}'
 firestore update users/user-1234 '{"age": 31, "active": false}'
 ```
 
-#### Deleting a collection, document, or field
+### Deleting a collection, document, or field
 ```bash
 # delete a collection and all its documents (this will prompt you to confirm)
 firestore delete users
