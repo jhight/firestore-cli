@@ -27,13 +27,13 @@ firestore get users/user-1234 name,age
 firestore get users/user-1234 name,age --limit 10
 
 # get all users with a firstName of "John"
-firestore get users -f '{"firstName":"John"}'
+firestore get users --filter '{"firstName":"John"}'
 
 # get all users with a firstName of "John" and a lastName of "Doe", ordered by age desc, then title asc
-firestore get users -f '{"firstName":"John","lastName":"Doe"}' -o age:desc,title:asc
+firestore get users --filter '{"firstName":"John","lastName":"Doe"}' -o age:desc,title:asc
 
 # get all users with a firstName of "John" and a lastName of "Doe" or an age >= 30
-firestore get users -f '{"$or":{"$and":{"firstName":"John","lastName":"Doe"}},"age":{">=":30}}'
+firestore get users --filter '{"$or":{"$and":{"firstName":"John","lastName":"Doe"}},"age":{">=":30}}'
 
 # get all users where address city (nested property) is one of: "New York", "Los Angeles", or "Chicago"
 firestore get users --filter '{"address.city":{"$in":["New York","Los Angeles","Chicago"]}}'
@@ -43,10 +43,10 @@ firestore get users --filter '{"address.city":{"$in":["New York","Los Angeles","
 Let's look at one of the previous examples in more detail:
 ```bash
 # get all users with a firstName of "John" and a lastName of "Doe" or an age >= 30
-firestore get users -f '{"$or":{"$and":{"firstName":"John","lastName":"Doe"},"age":{">=":30}}}'
+firestore get users --filter '{"$or":{"$and":{"firstName":"John","lastName":"Doe"},"age":{">=":30}}}'
 ```
 
-Made more readable, the filter argument JSON is:
+Made more readable, the filter JSON is:
 ```json
 {
   "$or": {
