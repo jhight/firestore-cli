@@ -34,10 +34,13 @@ firestore get users -f '{"firstName":"John","lastName":"Doe"}' -o age:desc,title
 
 # get all users with a firstName of "John" and a lastName of "Doe" or an age >= 30
 firestore get users -f '{"$or":{"$and":{"firstName":"John","lastName":"Doe"}},"age":{">=":30}}'
+
+# get all users where address city (nested property) is one of: "New York", "Los Angeles", or "Chicago"
+firestore get users --filter '{"address.city":{"$in":["New York","Los Angeles","Chicago"]}}'
 ```
 
 ### Filter syntax
-Let's look at the last example in more detail:
+Let's look at one of the previous examples in more detail:
 ```bash
 # get all users with a firstName of "John" and a lastName of "Doe" or an age >= 30
 firestore get users -f '{"$or":{"$and":{"firstName":"John","lastName":"Doe"},"age":{">=":30}}}'
