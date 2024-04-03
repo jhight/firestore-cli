@@ -104,6 +104,9 @@ firestore collections
 # list documents in a collection
 firestore get users
 
+# list subcollections of a document
+firestore collections users/user-1234
+
 # list document IDs in a collection
 firestore get users \$id
 
