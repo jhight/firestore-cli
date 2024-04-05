@@ -35,7 +35,6 @@ firestore get users/user-1234
   },
   "age": 30,
   "firstName": "John",
-  "id": 1234,
   "lastName": "Doe",
   "interests": [
     "finance",
@@ -46,17 +45,19 @@ firestore get users/user-1234
 
 Listing a collection, displaying only specific fields:
 ```bash
-# show user documents ids and last names
-firestore get users id,lastName
+# show specific user fields ($id refers to document ID)
+firestore get users \$id,first,lastName
 
 # output:
 [
   {
-    "id": 1234,
+    "$id": "user-1234",
+    "firstName": "John",
     "lastName": "Doe"
   },
   {
-    "id": 5678,
+    "$id": "user-5678",
+    "firstName": "Jane",
     "lastName": "Smith"
   }
 ]
@@ -65,13 +66,12 @@ firestore get users id,lastName
 Filtering documents:
 ```bash
 # get users with a lastName of "Doe"
-firestore get users id,firstName,lastName --filter '{"lastName":"Doe"}'
+firestore get users firstName,lastName --filter '{"lastName":"Doe"}'
 
 # output:
 [
   {
     "firstName": "John",
-    "id": 1234,
     "lastName": "Doe"
   }
 ]
@@ -80,17 +80,17 @@ firestore get users id,firstName,lastName --filter '{"lastName":"Doe"}'
 Filtering on nested properties:
 ```bash
 # get users with a city of "Chicago"
-firestore get users id,lastName,address --filter '{"address.city":"Chicago"}'
+firestore get users \$id,lastName,address --filter '{"address.city":"Chicago"}'
 
 # output:
 [
   {
+    "$id": "user-1234",
     "address": {
       "city": "Chicago",
       "state": "Illinois",
       "zip": 60606
     },
-    "id": 1234,
     "lastName": "Doe"
   }
 ]
@@ -241,6 +241,7 @@ firestore delete users/user-1234 age
 ```
 
 ## Special tokens
+<a name="special-tokens"></a>
 ### Filtering
 | Token                 | Purpose                  | Example filter                                  |
 |-----------------------|--------------------------|-------------------------------------------------|

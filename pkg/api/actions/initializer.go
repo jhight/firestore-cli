@@ -3,10 +3,10 @@ package actions
 import (
 	"context"
 	"fmt"
-	"github.com/jhight/firestore-cli/pkg/api/client"
-	"github.com/jhight/firestore-cli/pkg/config"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
+	"jhight.com/firestore-cli/pkg/api/client"
+	"jhight.com/firestore-cli/pkg/config"
 	"os"
 	"strconv"
 	"strings"

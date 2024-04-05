@@ -2,8 +2,8 @@ package actions
 
 import (
 	"fmt"
-	"github.com/jhight/firestore-cli/pkg/api/client/query"
 	"github.com/spf13/cobra"
+	"jhight.com/firestore-cli/pkg/api/client/query"
 	"os"
 	"slices"
 	"strings"

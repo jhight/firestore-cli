@@ -3,7 +3,7 @@ package client
 import (
 	"cloud.google.com/go/firestore"
 	"fmt"
-	"github.com/jhight/firestore-cli/pkg/api/client/query"
+	"jhight.com/firestore-cli/pkg/api/client/query"
 )
 
 func (f *firestoreClientManager) Get(input query.Input) (map[string]any, error) {

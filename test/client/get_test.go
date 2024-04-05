@@ -1,12 +1,12 @@
 package client
 
 import (
-	"github.com/jhight/firestore-cli/pkg/api/actions"
-	"github.com/jhight/firestore-cli/pkg/api/client"
-	"github.com/jhight/firestore-cli/pkg/api/client/query"
-	"github.com/jhight/firestore-cli/pkg/config"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
+	"jhight.com/firestore-cli/pkg/api/actions"
+	"jhight.com/firestore-cli/pkg/api/client"
+	"jhight.com/firestore-cli/pkg/api/client/query"
+	"jhight.com/firestore-cli/pkg/config"
 	"testing"
 )
 

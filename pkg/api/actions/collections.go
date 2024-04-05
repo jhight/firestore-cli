@@ -1,8 +1,8 @@
 package actions
 
 import (
-	"github.com/jhight/firestore-cli/pkg/api/client/query"
 	"github.com/spf13/cobra"
+	"jhight.com/firestore-cli/pkg/api/client/query"
 	"os"
 	"strconv"
 	"strings"

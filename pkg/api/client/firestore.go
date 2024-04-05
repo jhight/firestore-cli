@@ -4,7 +4,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"fmt"
-	"github.com/jhight/firestore-cli/pkg/api/client/query"
+	"jhight.com/firestore-cli/pkg/api/client/query"
 	"strings"
 	"time"
 )

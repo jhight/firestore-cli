@@ -4,9 +4,9 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"fmt"
-	"github.com/jhight/firestore-cli/pkg/api/client/query"
-	"github.com/jhight/firestore-cli/pkg/config"
 	"google.golang.org/api/option"
+	"jhight.com/firestore-cli/pkg/api/client/query"
+	"jhight.com/firestore-cli/pkg/config"
 	"os"
 	"strings"
 )

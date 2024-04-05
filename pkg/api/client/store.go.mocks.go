@@ -12,8 +12,8 @@ package client
 import (
 	reflect "reflect"
 
-	query "github.com/jhight/firestore-cli/pkg/api/client/query"
 	gomock "go.uber.org/mock/gomock"
+	query "jhight.com/firestore-cli/pkg/api/client/query"
 )
 
 // MockStore is a mock of Store interface.

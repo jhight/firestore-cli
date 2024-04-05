@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/jhight/firestore-cli/pkg/api/actions"
+	"jhight.com/firestore-cli/pkg/api/actions"
 	"os"
 )
 
