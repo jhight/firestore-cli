@@ -268,9 +268,10 @@ firestore delete users/user-1234 age
 | `$array-contains-any` | Array contains any       | `{"field":{"$array-contains-any":["v1","v2"]}}` |
 
 ### Properties
-| Token | Purpose     | Example                    |
-|-------|-------------|----------------------------|
-| `$id` | Document ID | `firestore get users \$id` |
+| Token   | Purpose       | Example                      |
+|---------|---------------|------------------------------|
+| `$id`   | Document ID   | `firestore get users \$id`   |
+| `$path` | Document path | `firestore get users \$path` |
 
 ### Functions
 | Function            | Purpose                           | Example                                                                            |
