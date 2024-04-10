@@ -5,10 +5,7 @@
     <p><br/></p>
 </p>
 
-## Demo
 [demo.webm](https://github.com/jhight/firestore-cli/assets/1775340/68d37c42-643c-46c1-aee5-b16617e66a3f)
-
-
 
 ## Retrieving data
 ```bash
