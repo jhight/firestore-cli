@@ -6,7 +6,8 @@
 </p>
 
 ## Demo
-[demo.webm](https://github.com/jhight/firestore-cli/assets/1775340/2212a77a-dbb2-42a3-9257-7eef8f8f1378)
+[demo.webm](https://github.com/jhight/firestore-cli/assets/1775340/68d37c42-643c-46c1-aee5-b16617e66a3f)
+
 
 
 ## Retrieving data
