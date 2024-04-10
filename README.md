@@ -10,17 +10,19 @@
 ## Retrieving data
 ```bash
 # note: see firestore get --help for a lot more information
-firestore get <path> [<field1>,<field2>,...] [--filter <json>] [--order <field>:<asc|desc>] [--limit <n>] [--offset <n>] [--count]
+firestore get <path> [<field>,<field>,...] [--filter <json>] [--order <field>:<asc|desc>] [--limit <n>] [--offset <n>] [--count]
 ```
-Here, `<path>` can be one of the following:
+Here, `<path>` can be either:
 
-* a collection path, like `users`
-* a document path, like `users/user-1234` or `users/user-1234/projects/project-5678`
-* a subcollection path, like `users/user-1234/projects`
+* a path to a collection or subcollection, like `users` or `users/user-1234/projects`
+* a path to a document, like `users/user-1234` or `users/user-1234/projects/project-5678`
 
-Additionally, you can specify a list of fields to display, a filter to apply, how to sort, and paging options.
+And `<field>` can be:
+* a field, like `name` or `age`
+* a nested field, like `address.city`
+* `$id`, which represents the document ID
 
-If you want to reference a nested field, use the dot notation. For example, to get the `city` field from the `address` object, you would use `address.city`.
+Fields can be used in data selection, filtering, sorting, and paging.
 
 ### Examples
 Getting a document by its ID:
@@ -47,8 +49,8 @@ firestore get users/user-1234
 
 Listing a collection, displaying only specific fields:
 ```bash
-# show specific user fields ($id refers to document ID)
-firestore get users \$id,first,lastName
+# show specific user fields ($id refers to the document ID)
+firestore get users \$id,first,lastName,address.city
 
 # output:
 [
@@ -56,11 +58,13 @@ firestore get users \$id,first,lastName
     "$id": "user-1234",
     "firstName": "John",
     "lastName": "Doe"
+    "address.city": "Chicago",
   },
   {
     "$id": "user-5678",
     "firstName": "Jane",
-    "lastName": "Smith"
+    "lastName": "Smith",
+    "address.city": "New York"
   }
 ]
 ```
@@ -78,7 +82,7 @@ firestore get users firstName,lastName --filter '{"lastName":"Doe"}'
   }
 ]
 ```
-Note that `--where` is an alias for `--filter`, if that feels more natural.
+If it feels more natural, `--where` is an alias for `--filter`. The two flags are interchangeable.
 
 Filtering on nested properties:
 ```bash
@@ -99,7 +103,7 @@ firestore get users \$id,lastName,address --filter '{"address.city":"Chicago"}'
 ]
 ```
 
-Here are a few more command examples:
+Here are a few more data retrieval examples:
 ```bash
 # list documents in a collection
 firestore get users
@@ -227,9 +231,12 @@ firestore update users/user-1234/projects/project-5678 '{"active": false, "endDa
 ## Deleting data
 ```bash
 # note: see firestore delete --help for a lot more information
-firestore delete <path> [<field1>,<field2>,...]
+firestore delete <path> [<field>,<field>,...]
 ```
-Firestore CLI can delete documents, fields, or entire collections. If `<path>` is a collection or subcollection path, Firestore CLI will prompt you to confirm before deleting the collection and all its documents. If one or more fields are specified, only those fields will be deleted from the document. Otherwise, the document referenced will be deleted.
+Firestore CLI can delete documents, fields, or entire collections:
+* If `<path>` is a collection or subcollection path, Firestore CLI will prompt you to confirm before deleting the collection and all its documents.
+* If `<path>` references a document and one or more `<field>` values are specified, only those fields will be deleted from the document.
+* Otherwise, the document referenced by `<path>` will be deleted.
 
 ### Examples
 ```bash
@@ -245,8 +252,8 @@ firestore delete users/user-1234 age
 
 ## Special tokens
 <a name="special-tokens"></a>
-### Filtering
-| Token                 | Purpose                  | Example filter                                  |
+### Filtering operators
+| Operator              | Purpose                  | Example                                         |
 |-----------------------|--------------------------|-------------------------------------------------|
 | `$and`                | Logical AND              | `{"$and":{"k1":"v1","k2":"v2"}}`                |
 | `$or`                 | Logical OR               | `{"$or":{"k1":"v1","k2":"v2"}}`                 |
@@ -260,10 +267,14 @@ firestore delete users/user-1234 age
 | `$array-contains`     | Array contains           | `{"field":{"$array-contains":"v1"}}`            |
 | `$array-contains-any` | Array contains any       | `{"field":{"$array-contains-any":["v1","v2"]}}` |
 
-### Values
-| Token               | Represents                        | Example use                                                                        |
+### Properties
+| Token | Purpose     | Example                    |
+|-------|-------------|----------------------------|
+| `$id` | Document ID | `firestore get users \$id` |
+
+### Functions
+| Function            | Purpose                           | Example                                                                            |
 |---------------------|-----------------------------------|------------------------------------------------------------------------------------|
-| `$id`               | Document ID                       | `firestore get users \$id`                                                         |
 | `$now()`            | Current time function             | `firestore set users/user-1234 '{"lastUpdated":"$now()"}'`                         |
 | `$timestamp(value)` | ISO-8601 timestamp parse function | `firestore set users/user-1234 {"lastUpdated":"$timestamp(2023-12-31T23:59:59Z)"}` |
 
