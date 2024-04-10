@@ -78,6 +78,7 @@ firestore get users firstName,lastName --filter '{"lastName":"Doe"}'
   }
 ]
 ```
+Note that `--where` is an alias for `--filter`, if that feels more natural.
 
 Filtering on nested properties:
 ```bash
